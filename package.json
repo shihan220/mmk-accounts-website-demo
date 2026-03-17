@@ -14,5 +14,8 @@
     "backend:prisma:generate": "npm --prefix backend run prisma:generate",
     "backend:prisma:deploy": "npm --prefix backend run prisma:deploy",
     "backend:prisma:seed": "npm --prefix backend run prisma:seed"
+  },
+  "devDependencies": {
+    "serve": "^14.2.6"
   }
 }
