@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- include:head -->
+    <meta name="description" content="Free interactive tax calculators, VAT tools, and business resources from MMK Accountants. Calculate income tax, national insurance, dividends & more.">
+    <title>Interactive Tools & Calculators | MMK Accountants Ltd</title>
+</head>
+<body class="page-inner">
+<!-- include:boilerplate-top -->
+<!-- include:top-bar -->
+<!-- include:nav -->
+<!-- include:quote-modal -->
+
+    <main id="main-content">
+    <section class="page-hero">
+        <div class="page-hero-bg"><div class="hero-gradient"></div><div class="hero-mesh-1"></div><div class="hero-mesh-2"></div><div class="hero-grain"></div><div class="hero-grid-lines"></div></div>
+        <div class="container">
+            <div class="page-hero-content">
+                <nav class="breadcrumb" aria-label="Breadcrumb"><a href="index.html">Home</a><span class="breadcrumb-sep">/</span><a href="resources.html">Resources</a><span class="breadcrumb-sep">/</span><span>Interactive Tools</span></nav>
+                <h1>INTERACTIVE <em>TOOLS</em></h1>
+                <p>Free calculators and tools to help you plan your finances and stay compliant.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tool Selector -->
+    <section class="tools-section">
+        <div class="container">
+            <div class="section-number-label anim-item">01 &mdash; TAX CALCULATORS</div>
+
+            <div class="tools-grid">
+                <!-- Income Tax Calculator -->
+                <div class="tool-card anim-item" id="incomeTaxCalc">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/wyqtxzeh.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>Income Tax Calculator</h3>
+                        <span class="tool-badge">2025/26</span>
+                    </div>
+                    <p>Calculate your UK income tax liability based on current HMRC tax bands and allowances.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="annualIncome">Annual Gross Income</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">&pound;</span>
+                                <input type="number" id="annualIncome" placeholder="e.g. 50000" min="0" step="100">
+                            </div>
+                        </div>
+                        <div class="tool-input-group">
+                            <label for="taxCode">Tax Status</label>
+                            <select id="taxCode">
+                                <option value="standard">Standard (12,570 Personal Allowance)</option>
+                                <option value="blind">Blind Person's Allowance (15,450)</option>
+                                <option value="none">No Personal Allowance</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-dark tool-calc-btn" onclick="calculateIncomeTax()">
+                            <span class="btn-text">Calculate Tax</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        </button>
+                    </div>
+                    <div class="tool-results" id="incomeTaxResults" style="display:none;">
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <span class="result-label">Personal Allowance</span>
+                                <span class="result-value" id="itPersonalAllowance">&pound;0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Basic Rate (20%)</span>
+                                <span class="result-value" id="itBasicRate">&pound;0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Higher Rate (40%)</span>
+                                <span class="result-value" id="itHigherRate">&pound;0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Additional Rate (45%)</span>
+                                <span class="result-value" id="itAdditionalRate">&pound;0</span>
+                            </div>
+                            <div class="result-item result-total">
+                                <span class="result-label">Total Income Tax</span>
+                                <span class="result-value" id="itTotalTax">&pound;0</span>
+                            </div>
+                            <div class="result-item result-highlight">
+                                <span class="result-label">Effective Tax Rate</span>
+                                <span class="result-value" id="itEffectiveRate">0%</span>
+                            </div>
+                            <div class="result-item result-highlight">
+                                <span class="result-label">Take-Home Pay</span>
+                                <span class="result-value" id="itTakeHome">&pound;0</span>
+                            </div>
+                        </div>
+                        <div class="chart-container"><canvas id="itChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- National Insurance Calculator -->
+                <div class="tool-card anim-item" id="niCalc">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/ktsahwvc.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>National Insurance Calculator</h3>
+                        <span class="tool-badge">2025/26</span>
+                    </div>
+                    <p>Calculate your Class 1 National Insurance contributions as an employee or employer.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="niSalary">Annual Salary</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">&pound;</span>
+                                <input type="number" id="niSalary" placeholder="e.g. 35000" min="0" step="100">
+                            </div>
+                        </div>
+                        <div class="tool-input-group">
+                            <label for="niCategory">NI Category</label>
+                            <select id="niCategory">
+                                <option value="A">Category A (Standard employee)</option>
+                                <option value="H">Category H (Apprentice under 25)</option>
+                                <option value="M">Category M (Under 21)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-dark tool-calc-btn" onclick="calculateNI()">
+                            <span class="btn-text">Calculate NI</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        </button>
+                    </div>
+                    <div class="tool-results" id="niResults" style="display:none;">
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <span class="result-label">Primary Threshold</span>
+                                <span class="result-value" id="niThreshold">&pound;12,570</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Employee NI (8%)</span>
+                                <span class="result-value" id="niEmployee">&pound;0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Employer NI (13.8%)</span>
+                                <span class="result-value" id="niEmployer">&pound;0</span>
+                            </div>
+                            <div class="result-item result-total">
+                                <span class="result-label">Total NI Cost</span>
+                                <span class="result-value" id="niTotal">&pound;0</span>
+                            </div>
+                        </div>
+                        <div class="chart-container"><canvas id="niChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- VAT Calculator -->
+                <div class="tool-card anim-item" id="vatCalc">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/qhviklyi.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>VAT Calculator</h3>
+                        <span class="tool-badge">Standard</span>
+                    </div>
+                    <p>Add or remove VAT at standard (20%), reduced (5%), or zero rate. Essential for invoicing and bookkeeping.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="vatAmount">Amount</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">&pound;</span>
+                                <input type="number" id="vatAmount" placeholder="e.g. 1000" min="0" step="0.01">
+                            </div>
+                        </div>
+                        <div class="tool-input-group">
+                            <label for="vatRate">VAT Rate</label>
+                            <select id="vatRate">
+                                <option value="20">Standard Rate (20%)</option>
+                                <option value="5">Reduced Rate (5%)</option>
+                                <option value="0">Zero Rate (0%)</option>
+                            </select>
+                        </div>
+                        <div class="tool-radio-group">
+                            <label class="tool-radio"><input type="radio" name="vatDirection" value="add" checked><span>Add VAT</span></label>
+                            <label class="tool-radio"><input type="radio" name="vatDirection" value="remove"><span>Remove VAT</span></label>
+                        </div>
+                        <button class="btn btn-dark tool-calc-btn" onclick="calculateVAT()">
+                            <span class="btn-text">Calculate VAT</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        </button>
+                    </div>
+                    <div class="tool-results" id="vatResults" style="display:none;">
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <span class="result-label">Net Amount (excl. VAT)</span>
+                                <span class="result-value" id="vatNet">&pound;0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">VAT Amount</span>
+                                <span class="result-value" id="vatVatAmount">&pound;0</span>
+                            </div>
+                            <div class="result-item result-total">
+                                <span class="result-label">Gross Amount (incl. VAT)</span>
+                                <span class="result-value" id="vatGross">&pound;0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dividend Tax Calculator -->
+                <div class="tool-card anim-item" id="dividendCalc">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/yeallgsa.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>Dividend Tax Calculator</h3>
+                        <span class="tool-badge">2025/26</span>
+                    </div>
+                    <p>Calculate tax on dividend income including the &pound;500 dividend allowance for the current tax year.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="divSalary">Other Income (Salary etc.)</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">&pound;</span>
+                                <input type="number" id="divSalary" placeholder="e.g. 12570" min="0" step="100">
+                            </div>
+                        </div>
+                        <div class="tool-input-group">
+                            <label for="divAmount">Annual Dividend Income</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">&pound;</span>
+                                <input type="number" id="divAmount" placeholder="e.g. 40000" min="0" step="100">
+                            </div>
+                        </div>
+                        <button class="btn btn-dark tool-calc-btn" onclick="calculateDividendTax()">
+                            <span class="btn-text">Calculate Dividend Tax</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        </button>
+                    </div>
+                    <div class="tool-results" id="dividendResults" style="display:none;">
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <span class="result-label">Dividend Allowance</span>
+                                <span class="result-value" id="divAllowance">&pound;500</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Basic Rate (8.75%)</span>
+                                <span class="result-value" id="divBasicRate">&pound;0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Higher Rate (33.75%)</span>
+                                <span class="result-value" id="divHigherRate">&pound;0</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Additional Rate (39.35%)</span>
+                                <span class="result-value" id="divAdditionalRate">&pound;0</span>
+                            </div>
+                            <div class="result-item result-total">
+                                <span class="result-label">Total Dividend Tax</span>
+                                <span class="result-value" id="divTotalTax">&pound;0</span>
+                            </div>
+                        </div>
+                        <div class="chart-container"><canvas id="divChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Corporation Tax Calculator -->
+                <div class="tool-card anim-item" id="corpTaxCalc">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/surcxhka.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>Corporation Tax Calculator</h3>
+                        <span class="tool-badge">2025/26</span>
+                    </div>
+                    <p>Calculate corporation tax with the marginal relief for profits between &pound;50,000 and &pound;250,000.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="corpProfits">Taxable Profits</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">&pound;</span>
+                                <input type="number" id="corpProfits" placeholder="e.g. 100000" min="0" step="1000">
+                            </div>
+                        </div>
+                        <div class="tool-input-group">
+                            <label for="corpAssociated">Number of Associated Companies</label>
+                            <select id="corpAssociated">
+                                <option value="0">None (0)</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4+</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-dark tool-calc-btn" onclick="calculateCorpTax()">
+                            <span class="btn-text">Calculate Corporation Tax</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        </button>
+                    </div>
+                    <div class="tool-results" id="corpTaxResults" style="display:none;">
+                        <div class="results-grid">
+                            <div class="result-item">
+                                <span class="result-label">Tax Rate Applied</span>
+                                <span class="result-value" id="corpRate">0%</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">Marginal Relief</span>
+                                <span class="result-value" id="corpRelief">&pound;0</span>
+                            </div>
+                            <div class="result-item result-total">
+                                <span class="result-label">Corporation Tax Due</span>
+                                <span class="result-value" id="corpTax">&pound;0</span>
+                            </div>
+                            <div class="result-item result-highlight">
+                                <span class="result-label">Effective Rate</span>
+                                <span class="result-value" id="corpEffective">0%</span>
+                            </div>
+                        </div>
+                        <div class="chart-container"><canvas id="corpChart"></canvas></div>
+                    </div>
+                </div>
+
+                <!-- Stamp Duty Calculator -->
+                <div class="tool-card anim-item" id="sdltCalc">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/laqlvddb.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>Stamp Duty (SDLT) Calculator</h3>
+                        <span class="tool-badge">2025/26</span>
+                    </div>
+                    <p>Calculate Stamp Duty Land Tax on residential property purchases in England and Northern Ireland.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="sdltPrice">Property Price</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">&pound;</span>
+                                <input type="number" id="sdltPrice" placeholder="e.g. 350000" min="0" step="1000">
+                            </div>
+                        </div>
+                        <div class="tool-input-group">
+                            <label for="sdltType">Buyer Type</label>
+                            <select id="sdltType">
+                                <option value="standard">Standard (Main Residence)</option>
+                                <option value="ftb">First-Time Buyer</option>
+                                <option value="additional">Additional Property (+5%)</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-dark tool-calc-btn" onclick="calculateSDLT()">
+                            <span class="btn-text">Calculate SDLT</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        </button>
+                    </div>
+                    <div class="tool-results" id="sdltResults" style="display:none;">
+                        <div class="results-grid">
+                            <div class="result-item result-total">
+                                <span class="result-label">Total SDLT Payable</span>
+                                <span class="result-value" id="sdltTotal">&pound;0</span>
+                            </div>
+                            <div class="result-item result-highlight">
+                                <span class="result-label">Effective Rate</span>
+                                <span class="result-value" id="sdltEffective">0%</span>
+                            </div>
+                        </div>
+                        <div class="sdlt-breakdown" id="sdltBreakdown"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Reference Tools -->
+    <section class="tools-section tools-reference">
+        <div class="container">
+            <div class="section-number-label anim-item">02 &mdash; QUICK REFERENCE TOOLS</div>
+
+            <div class="tools-grid tools-grid-3">
+                <!-- Company Search -->
+                <div class="tool-card tool-card-compact anim-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/kkvxgpti.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>Company Search</h3>
+                    </div>
+                    <p>Look up any UK company on Companies House. Check company status, directors, and filing history.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="companySearch">Company Name or Number</label>
+                            <input type="text" id="companySearch" placeholder="e.g. MMK Accountants or 07900052">
+                        </div>
+                        <a id="companySearchBtn" href="https://find-and-update.company-information.service.gov.uk/" target="_blank" rel="noopener" class="btn btn-dark tool-calc-btn" onclick="searchCompany(event)">
+                            <span class="btn-text">Search Companies House</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg></span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- VAT Number Check -->
+                <div class="tool-card tool-card-compact anim-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/egiwmiit.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>VAT Number Checker</h3>
+                    </div>
+                    <p>Verify a UK or EU VAT registration number is valid using the HMRC/VIES system.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="vatNumber">VAT Number</label>
+                            <input type="text" id="vatNumber" placeholder="e.g. GB123456789">
+                        </div>
+                        <a id="vatCheckBtn" href="https://www.tax.service.gov.uk/check-vat-number/enter-vat" target="_blank" rel="noopener" class="btn btn-dark tool-calc-btn" onclick="checkVAT(event)">
+                            <span class="btn-text">Check on HMRC</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg></span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- MTD Checker -->
+                <div class="tool-card tool-card-compact anim-item">
+                    <div class="tool-card-header">
+                        <div class="tool-icon">
+                            <lord-icon src="https://cdn.lordicon.com/wzrwaorf.json" trigger="hover" colors="primary:#0ea5e9,secondary:#0c2d42" style="width:36px;height:36px"></lord-icon>
+                        </div>
+                        <h3>MTD Readiness Check</h3>
+                    </div>
+                    <p>Check if you need to comply with Making Tax Digital and which deadlines apply to your business.</p>
+                    <div class="tool-form">
+                        <div class="tool-input-group">
+                            <label for="mtdType">Business Type</label>
+                            <select id="mtdType">
+                                <option value="vat">VAT Registered Business</option>
+                                <option value="sole">Sole Trader (over &pound;50k income)</option>
+                                <option value="landlord">Landlord (over &pound;50k income)</option>
+                                <option value="ltd">Limited Company</option>
+                            </select>
+                        </div>
+                        <div class="tool-input-group">
+                            <label for="mtdTurnover">Annual Turnover / Income</label>
+                            <div class="input-with-prefix">
+                                <span class="input-prefix">&pound;</span>
+                                <input type="number" id="mtdTurnover" placeholder="e.g. 85000" min="0" step="1000">
+                            </div>
+                        </div>
+                        <button class="btn btn-dark tool-calc-btn" onclick="checkMTD()">
+                            <span class="btn-text">Check MTD Status</span>
+                            <span class="btn-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
+                        </button>
+                    </div>
+                    <div class="tool-results" id="mtdResults" style="display:none;">
+                        <div class="mtd-status" id="mtdStatus"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tax Deadlines -->
+    <section class="tools-section deadlines-section">
+        <div class="container">
+            <div class="section-number-label anim-item">03 &mdash; KEY TAX DEADLINES 2025/26</div>
+            <div class="deadlines-grid">
+                <div class="deadline-card anim-item">
+                    <div class="deadline-date"><span class="deadline-day">5</span><span class="deadline-month">APR</span></div>
+                    <div class="deadline-info">
+                        <h4>End of 2024/25 Tax Year</h4>
+                        <p>Last day of the current tax year. Ensure all tax planning for 2024/25 is finalised.</p>
+                    </div>
+                </div>
+                <div class="deadline-card anim-item">
+                    <div class="deadline-date"><span class="deadline-day">6</span><span class="deadline-month">APR</span></div>
+                    <div class="deadline-info">
+                        <h4>Start of 2025/26 Tax Year</h4>
+                        <p>New tax rates and allowances come into effect. Review your tax planning strategy.</p>
+                    </div>
+                </div>
+                <div class="deadline-card deadline-urgent anim-item">
+                    <div class="deadline-date"><span class="deadline-day">7</span><span class="deadline-month">JUL</span></div>
+                    <div class="deadline-info">
+                        <h4>Second Payment on Account</h4>
+                        <p>Second self-assessment payment on account for 2024/25 due to HMRC.</p>
+                    </div>
+                </div>
+                <div class="deadline-card anim-item">
+                    <div class="deadline-date"><span class="deadline-day">5</span><span class="deadline-month">OCT</span></div>
+                    <div class="deadline-info">
+                        <h4>Self-Assessment Registration</h4>
+                        <p>Deadline to register for self-assessment if newly self-employed or have untaxed income.</p>
+                    </div>
+                </div>
+                <div class="deadline-card anim-item">
+                    <div class="deadline-date"><span class="deadline-day">31</span><span class="deadline-month">OCT</span></div>
+                    <div class="deadline-info">
+                        <h4>Paper Tax Return Deadline</h4>
+                        <p>Last day to submit paper self-assessment tax returns for 2024/25.</p>
+                    </div>
+                </div>
+                <div class="deadline-card deadline-urgent anim-item">
+                    <div class="deadline-date"><span class="deadline-day">31</span><span class="deadline-month">JAN</span></div>
+                    <div class="deadline-info">
+                        <h4>Online Tax Return &amp; Payment</h4>
+                        <p>Online self-assessment deadline AND payment of tax due for 2024/25. First payment on account for 2025/26.</p>
+                    </div>
+                </div>
+                <div class="deadline-card anim-item">
+                    <div class="deadline-date"><span class="deadline-day">1</span><span class="deadline-month">APR</span></div>
+                    <div class="deadline-info">
+                        <h4>MTD for Income Tax (ITSA)</h4>
+                        <p>Making Tax Digital for Income Tax Self Assessment begins for sole traders and landlords with income over &pound;50,000.</p>
+                        <span class="deadline-tag">April 2026</span>
+                    </div>
+                </div>
+                <div class="deadline-card anim-item">
+                    <div class="deadline-date"><span class="deadline-day">19</span><span class="deadline-month">Monthly</span></div>
+                    <div class="deadline-info">
+                        <h4>PAYE &amp; NI Monthly Deadline</h4>
+                        <p>Monthly deadline for employers to pay PAYE, NI contributions, and student loan deductions to HMRC.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Useful HMRC Links -->
+    <section class="tools-section links-section">
+        <div class="container">
+            <div class="section-number-label anim-item">04 &mdash; USEFUL HMRC &amp; GOV.UK LINKS</div>
+            <div class="useful-links-grid">
+                <a href="https://www.gov.uk/self-assessment-tax-returns" target="_blank" rel="noopener" class="useful-link-card anim-item">
+                    <div class="useful-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+                    <span class="useful-link-title">Self Assessment Tax Returns</span>
+                    <span class="useful-link-desc">File your self-assessment return online with HMRC</span>
+                    <svg class="useful-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+                <a href="https://www.gov.uk/vat-registration" target="_blank" rel="noopener" class="useful-link-card anim-item">
+                    <div class="useful-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+                    <span class="useful-link-title">VAT Registration</span>
+                    <span class="useful-link-desc">Register for VAT or check if you need to</span>
+                    <svg class="useful-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+                <a href="https://www.gov.uk/pay-self-assessment-tax-bill" target="_blank" rel="noopener" class="useful-link-card anim-item">
+                    <div class="useful-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+                    <span class="useful-link-title">Pay Your Tax Bill</span>
+                    <span class="useful-link-desc">Various ways to pay your self-assessment tax bill</span>
+                    <svg class="useful-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+                <a href="https://www.gov.uk/running-a-limited-company" target="_blank" rel="noopener" class="useful-link-card anim-item">
+                    <div class="useful-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+                    <span class="useful-link-title">Running a Limited Company</span>
+                    <span class="useful-link-desc">Your responsibilities as a company director</span>
+                    <svg class="useful-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+                <a href="https://www.gov.uk/corporation-tax" target="_blank" rel="noopener" class="useful-link-card anim-item">
+                    <div class="useful-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+                    <span class="useful-link-title">Corporation Tax</span>
+                    <span class="useful-link-desc">Corporation tax rates, allowances and deadlines</span>
+                    <svg class="useful-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+                <a href="https://www.gov.uk/government/organisations/companies-house" target="_blank" rel="noopener" class="useful-link-card anim-item">
+                    <div class="useful-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                    <span class="useful-link-title">Companies House</span>
+                    <span class="useful-link-desc">File company accounts, search company register</span>
+                    <svg class="useful-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+                <a href="https://www.gov.uk/guidance/making-tax-digital" target="_blank" rel="noopener" class="useful-link-card anim-item">
+                    <div class="useful-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                    <span class="useful-link-title">Making Tax Digital</span>
+                    <span class="useful-link-desc">Find out about MTD requirements and compatible software</span>
+                    <svg class="useful-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+                <a href="https://www.gov.uk/employer-paye-reference" target="_blank" rel="noopener" class="useful-link-card anim-item">
+                    <div class="useful-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+                    <span class="useful-link-title">PAYE for Employers</span>
+                    <span class="useful-link-desc">Employer PAYE reference, payroll, and RTI submissions</span>
+                    <svg class="useful-link-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section cta-ponivan">
+        <div class="cta-bg"><div class="cta-mesh-1"></div><div class="cta-mesh-2"></div><div class="cta-grain"></div></div>
+        <div class="container">
+            <div class="cta-ponivan-layout">
+                <div class="cta-ponivan-label anim-item">05 &mdash; NEED HELP?</div>
+                <h2 class="cta-ponivan-heading anim-item">LET'S TALK</h2>
+                <p class="cta-ponivan-sub anim-item" style="color: rgba(255,255,255,0.5); max-width: 500px; margin: 0 auto 40px; text-align: center;">These tools are for guidance only. For personalised advice tailored to your circumstances, speak with our team.</p>
+                <div class="cta-ponivan-grid">
+                    <div class="cta-ponivan-circle anim-item"><a href="contact.html" class="circle-btn"><span>SAY HELLO</span></a></div>
+                    <div class="cta-ponivan-info anim-item">
+                        <div class="cta-info-item"><span class="cta-info-label">EMAIL:</span><a href="mailto:mail@mmkaccountants.com" class="cta-info-value">mail@mmkaccountants.com</a></div>
+                        <div class="cta-info-row">
+                            <div class="cta-info-item"><span class="cta-info-label">LONDON:</span><a href="tel:02039815373" class="cta-info-value">020 3981 5373</a></div>
+                            <div class="cta-info-item"><span class="cta-info-label">LUTON:</span><a href="tel:01582726600" class="cta-info-value">01582 726 600</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </main>
+
+<!-- include:footer -->
+<!-- include:boilerplate-bottom -->
+</body>
+</html>

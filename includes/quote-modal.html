@@ -1,0 +1,57 @@
+    <div class="modal-overlay" id="quoteModal" style="display:none">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose" aria-label="Close modal">
+                <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <h3>Request a <em>Quote</em></h3>
+            <p class="modal-desc">Tell us about your needs and we'll get back to you within 2 hours during business hours.</p>
+            <form class="contact-form" id="quoteForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="q-name">Full Name *</label>
+                        <input type="text" id="q-name" name="name" placeholder="John Smith" required autocomplete="name">
+                        <div class="input-focus-line"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="q-email">Email Address *</label>
+                        <input type="email" id="q-email" name="email" placeholder="john@example.com" required autocomplete="email">
+                        <div class="input-focus-line"></div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="q-phone">Phone Number</label>
+                        <input type="tel" id="q-phone" name="phone" placeholder="+44 7XXX XXX XXX" autocomplete="tel">
+                        <div class="input-focus-line"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="q-service">Service Required</label>
+                        <select id="q-service" name="service">
+                            <option value="">Select a service...</option>
+                            <option>Accounting &amp; Compliance</option>
+                            <option>Bookkeeping</option>
+                            <option>Tax Planning &amp; Advisory</option>
+                            <option>Payroll</option>
+                            <option>Company Formation</option>
+                            <option>Company Secretarial</option>
+                            <option>Corporate Finance</option>
+                            <option>Business Start-Ups</option>
+                            <option>Tax Investigation Support</option>
+                            <option>Other</option>
+                        </select>
+                        <div class="input-focus-line"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="q-message">Your Message *</label>
+                    <textarea id="q-message" name="message" rows="4" placeholder="Tell us about your business and how we can help..." required></textarea>
+                    <div class="input-focus-line"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">
+                    <span class="btn-text">Submit Request</span>
+                    <span class="btn-icon"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></span>
+                    <div class="btn-glow"></div>
+                </button>
+            </form>
+        </div>
+    </div>

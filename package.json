@@ -1,0 +1,18 @@
+{
+  "name": "mmk-accountants-website",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MMK Accountants Ltd - Chartered Certified Accountants website",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js && npx serve . -l 3000",
+    "start": "npx serve . -l 3000",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:build": "npm --prefix backend run build",
+    "backend:start": "npm --prefix backend run start",
+    "backend:typecheck": "npm --prefix backend run typecheck",
+    "backend:prisma:generate": "npm --prefix backend run prisma:generate",
+    "backend:prisma:deploy": "npm --prefix backend run prisma:deploy",
+    "backend:prisma:seed": "npm --prefix backend run prisma:seed"
+  }
+}
