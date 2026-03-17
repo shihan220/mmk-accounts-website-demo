@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex,nofollow">
+    <title>MMK Admin Dashboard</title>
+    <link rel="stylesheet" href="admin-dashboard.css">
+</head>
+<body>
+    <div class="admin-shell">
+        <header class="admin-header">
+            <div class="admin-brand-wrap">
+                <p class="admin-kicker">MMK Accountants</p>
+                <h1>Admin Dashboard</h1>
+            </div>
+            <div class="admin-header-actions">
+                <span id="apiBasePill" class="pill">API</span>
+                <button id="refreshAllBtn" class="btn btn-secondary" type="button" disabled>Refresh Data</button>
+                <button id="logoutBtn" class="btn btn-danger" type="button" disabled>Log Out</button>
+            </div>
+        </header>
+
+        <div id="flashMessage" class="flash-message" aria-live="polite"></div>
+
+        <section id="authSection" class="auth-section">
+            <div class="auth-card">
+                <h2>Sign In</h2>
+                <p>Use your staff or admin credentials to access inquiry and subscriber management.</p>
+                <form id="loginForm" class="stack-form">
+                    <label>
+                        Email
+                        <input id="loginEmail" name="email" type="email" autocomplete="username" placeholder="admin@mmkaccountants.local" required>
+                    </label>
+                    <label>
+                        Password
+                        <input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="********" required>
+                    </label>
+                    <button id="loginBtn" class="btn btn-primary" type="submit">Sign In</button>
+                </form>
+                <p id="authError" class="error-text" role="alert"></p>
+            </div>
+        </section>
+
+        <section id="appSection" class="app-section is-hidden">
+            <div class="session-bar">
+                <div>
+                    <strong id="currentUserName">Not signed in</strong>
+                    <span id="currentUserEmail" class="muted"></span>
+                </div>
+                <span id="currentUserRole" class="role-chip">GUEST</span>
+            </div>
+
+            <nav class="view-tabs" aria-label="Admin views">
+                <button class="view-tab active" data-view="overview" type="button">Overview</button>
+                <button class="view-tab" data-view="inquiries" type="button">Inquiries</button>
+                <button class="view-tab" data-view="newsletter" type="button">Newsletter</button>
+                <button class="view-tab" data-view="users" type="button">Users</button>
+                <button class="view-tab" data-view="audit" type="button">Audit Logs</button>
+            </nav>
+
+            <section id="view-overview" class="view-panel active">
+                <div class="panel-head">
+                    <h2>Dashboard Metrics</h2>
+                    <div class="inline-controls">
+                        <label>
+                            Window (days)
+                            <select id="overviewDays">
+                                <option value="7">7</option>
+                                <option value="14">14</option>
+                                <option value="30" selected>30</option>
+                                <option value="90">90</option>
+                            </select>
+                        </label>
+                        <button id="overviewReload" class="btn btn-secondary" type="button">Reload</button>
+                    </div>
+                </div>
+
+                <div class="kpi-grid">
+                    <article class="kpi-card">
+                        <p>Total Inquiries</p>
+                        <h3 id="kpiTotalInquiries">0</h3>
+                    </article>
+                    <article class="kpi-card">
+                        <p>New</p>
+                        <h3 id="kpiNewInquiries">0</h3>
+                    </article>
+                    <article class="kpi-card">
+                        <p>In Progress</p>
+                        <h3 id="kpiInProgressInquiries">0</h3>
+                    </article>
+                    <article class="kpi-card">
+                        <p>Resolved / Closed</p>
+                        <h3 id="kpiResolvedInquiries">0</h3>
+                    </article>
+                    <article class="kpi-card">
+                        <p>Inquiries in Window</p>
+                        <h3 id="kpiRecentInquiries">0</h3>
+                    </article>
+                    <article class="kpi-card">
+                        <p>Active Subscribers</p>
+                        <h3 id="kpiActiveSubscribers">0</h3>
+                    </article>
+                </div>
+
+                <div class="split-grid">
+                    <div class="card">
+                        <h3>Inquiry Source Mix</h3>
+                        <ul id="overviewBySource" class="mini-list"></ul>
+                    </div>
+                    <div class="card">
+                        <h3>Latest Inquiries</h3>
+                        <div class="table-wrap compact">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Name</th>
+                                        <th>Source</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="overviewLatestBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-inquiries" class="view-panel">
+                <div class="panel-head">
+                    <h2>Inquiries</h2>
+                    <form id="inquiriesFilters" class="inline-filters">
+                        <input id="inquiriesSearch" type="search" placeholder="Search name, email, service, message">
+                        <select id="inquiriesStatus">
+                            <option value="">All Statuses</option>
+                            <option value="NEW">NEW</option>
+                            <option value="IN_PROGRESS">IN_PROGRESS</option>
+                            <option value="RESOLVED">RESOLVED</option>
+                            <option value="CLOSED">CLOSED</option>
+                        </select>
+                        <select id="inquiriesSource">
+                            <option value="">All Sources</option>
+                            <option value="CONTACT">CONTACT</option>
+                            <option value="QUOTE">QUOTE</option>
+                        </select>
+                        <button class="btn btn-secondary" type="submit">Apply</button>
+                    </form>
+                </div>
+
+                <div class="split-grid split-large">
+                    <div class="card">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Source</th>
+                                        <th>Status</th>
+                                        <th>Assigned</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inquiriesBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pager">
+                            <button id="inquiriesPrev" class="btn btn-secondary" type="button">Prev</button>
+                            <span id="inquiriesPagination">Page 1 / 1</span>
+                            <button id="inquiriesNext" class="btn btn-secondary" type="button">Next</button>
+                        </div>
+                    </div>
+
+                    <aside id="inquiryDetail" class="card detail-card">
+                        <h3>Inquiry Details</h3>
+                        <p class="muted" id="detailEmpty">Select an inquiry to view and update it.</p>
+
+                        <div id="detailContent" class="is-hidden">
+                            <p><strong>ID:</strong> <span id="detailId"></span></p>
+                            <p><strong>Name:</strong> <span id="detailName"></span></p>
+                            <p><strong>Email:</strong> <span id="detailEmail"></span></p>
+                            <p><strong>Phone:</strong> <span id="detailPhone"></span></p>
+                            <p><strong>Service:</strong> <span id="detailService"></span></p>
+                            <p><strong>Message:</strong></p>
+                            <p id="detailMessage" class="detail-message"></p>
+
+                            <div class="detail-controls">
+                                <label>
+                                    Status
+                                    <select id="detailStatus">
+                                        <option value="NEW">NEW</option>
+                                        <option value="IN_PROGRESS">IN_PROGRESS</option>
+                                        <option value="RESOLVED">RESOLVED</option>
+                                        <option value="CLOSED">CLOSED</option>
+                                    </select>
+                                </label>
+                                <label>
+                                    Assignee
+                                    <select id="detailAssignee"></select>
+                                </label>
+                            </div>
+
+                            <button id="detailSave" class="btn btn-primary" type="button">Save Inquiry</button>
+
+                            <div class="notes-block">
+                                <h4>Notes</h4>
+                                <ul id="detailNotes" class="mini-list"></ul>
+                                <textarea id="detailNoteInput" rows="3" placeholder="Add an internal note"></textarea>
+                                <button id="detailNoteAdd" class="btn btn-secondary" type="button">Add Note</button>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </section>
+
+            <section id="view-newsletter" class="view-panel">
+                <div class="panel-head">
+                    <h2>Newsletter Subscribers</h2>
+                    <form id="subscribersFilters" class="inline-filters">
+                        <input id="subsSearch" type="search" placeholder="Search email">
+                        <select id="subsStatus">
+                            <option value="">All Statuses</option>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="UNSUBSCRIBED">UNSUBSCRIBED</option>
+                        </select>
+                        <button class="btn btn-secondary" type="submit">Apply</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>Source Page</th>
+                                    <th>Subscribed</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subsBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pager">
+                        <button id="subsPrev" class="btn btn-secondary" type="button">Prev</button>
+                        <span id="subsPagination">Page 1 / 1</span>
+                        <button id="subsNext" class="btn btn-secondary" type="button">Next</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-users" class="view-panel">
+                <div class="panel-head">
+                    <h2>Users</h2>
+                    <form id="usersFilters" class="inline-filters">
+                        <input id="usersSearch" type="search" placeholder="Search name or email">
+                        <select id="usersRole">
+                            <option value="">All Roles</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="STAFF">STAFF</option>
+                        </select>
+                        <select id="usersIsActive">
+                            <option value="">All Statuses</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                        <button class="btn btn-secondary" type="submit">Apply</button>
+                    </form>
+                </div>
+
+                <div class="split-grid split-large">
+                    <div class="card">
+                        <h3>Create User</h3>
+                        <form id="createUserForm" class="stack-form">
+                            <label>
+                                Full Name
+                                <input id="createUserName" type="text" required>
+                            </label>
+                            <label>
+                                Email
+                                <input id="createUserEmail" type="email" required>
+                            </label>
+                            <label>
+                                Password
+                                <input id="createUserPassword" type="password" minlength="8" required>
+                            </label>
+                            <label>
+                                Role
+                                <select id="createUserRole">
+                                    <option value="STAFF">STAFF</option>
+                                    <option value="ADMIN">ADMIN</option>
+                                </select>
+                            </label>
+                            <label class="check-row">
+                                <input id="createUserActive" type="checkbox" checked>
+                                Active user
+                            </label>
+                            <button class="btn btn-primary" type="submit">Create</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                        <th>Active</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pager">
+                            <button id="usersPrev" class="btn btn-secondary" type="button">Prev</button>
+                            <span id="usersPagination">Page 1 / 1</span>
+                            <button id="usersNext" class="btn btn-secondary" type="button">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-audit" class="view-panel">
+                <div class="panel-head">
+                    <h2>Audit Logs</h2>
+                    <form id="auditFilters" class="inline-filters">
+                        <input id="auditActorId" type="text" placeholder="Actor UUID (optional)">
+                        <input id="auditAction" type="text" placeholder="Action contains">
+                        <input id="auditEntityType" type="text" placeholder="Entity type contains">
+                        <button class="btn btn-secondary" type="submit">Apply</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Actor</th>
+                                    <th>Action</th>
+                                    <th>Entity</th>
+                                    <th>Entity ID</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pager">
+                        <button id="auditPrev" class="btn btn-secondary" type="button">Prev</button>
+                        <span id="auditPagination">Page 1 / 1</span>
+                        <button id="auditNext" class="btn btn-secondary" type="button">Next</button>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </div>
+
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>
