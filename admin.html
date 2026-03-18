@@ -37,7 +37,50 @@
                     </label>
                     <button id="loginBtn" class="btn btn-primary" type="submit">Sign In</button>
                 </form>
+                <div id="loginVerifySection" class="auth-step is-hidden">
+                    <p id="loginCodeHint" class="auth-helper-text"></p>
+                    <form id="loginVerifyForm" class="stack-form">
+                        <label>
+                            Security Code
+                            <input id="loginCode" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit code" required>
+                        </label>
+                        <div class="auth-inline-actions">
+                            <button id="loginVerifyBtn" class="btn btn-primary" type="submit">Verify &amp; Sign In</button>
+                            <button id="loginVerifyCancelBtn" class="btn btn-secondary" type="button">Back</button>
+                        </div>
+                    </form>
+                </div>
                 <p id="authError" class="error-text" role="alert"></p>
+                <button id="forgotPasswordToggle" class="btn btn-link" type="button">Forgot password?</button>
+
+                <div id="forgotPasswordSection" class="auth-step is-hidden">
+                    <h3>Reset Password</h3>
+                    <form id="forgotRequestForm" class="stack-form">
+                        <label>
+                            Email or Phone
+                            <input id="forgotIdentifier" name="identifier" type="text" placeholder="admin@mmkaccountants.local or +447700900001" required>
+                        </label>
+                        <button id="forgotRequestBtn" class="btn btn-secondary" type="submit">Send Security Code</button>
+                    </form>
+                    <div id="forgotResetSection" class="is-hidden">
+                        <p id="forgotCodeHint" class="auth-helper-text"></p>
+                        <form id="forgotResetForm" class="stack-form">
+                            <label>
+                                Security Code
+                                <input id="forgotCode" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit code" required>
+                            </label>
+                            <label>
+                                New Password
+                                <input id="forgotNewPassword" name="newPassword" type="password" minlength="8" placeholder="Minimum 8 characters" required>
+                            </label>
+                            <div class="auth-inline-actions">
+                                <button id="forgotResetBtn" class="btn btn-primary" type="submit">Reset Password</button>
+                                <button id="forgotCancelBtn" class="btn btn-secondary" type="button">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                    <p id="forgotPasswordError" class="error-text" role="alert"></p>
+                </div>
 
                 <hr class="auth-divider">
 
@@ -68,6 +111,19 @@
                     </label>
                     <button id="registerBtn" class="btn btn-secondary" type="submit">Create Account</button>
                 </form>
+                <div id="registerVerifySection" class="auth-step is-hidden">
+                    <p id="registerCodeHint" class="auth-helper-text"></p>
+                    <form id="registerVerifyForm" class="stack-form">
+                        <label>
+                            Security Code
+                            <input id="registerCode" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="6-digit code" required>
+                        </label>
+                        <div class="auth-inline-actions">
+                            <button id="registerVerifyBtn" class="btn btn-primary" type="submit">Verify &amp; Create Account</button>
+                            <button id="registerVerifyCancelBtn" class="btn btn-secondary" type="button">Back</button>
+                        </div>
+                    </form>
+                </div>
                 <p id="registerError" class="error-text" role="alert"></p>
             </div>
         </section>

@@ -187,6 +187,33 @@ p {
     margin: 18px 0;
 }
 
+.auth-step {
+    margin-top: 12px;
+}
+
+.auth-helper-text {
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+    line-height: 1.4;
+    font-size: 0.86rem;
+}
+
+.auth-inline-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-link {
+    background: transparent;
+    border: 0;
+    color: #2648c2;
+    font-weight: 600;
+    padding: 4px 0;
+    border-radius: 0;
+    text-align: left;
+}
+
 .stack-form {
     display: grid;
     gap: 12px;
