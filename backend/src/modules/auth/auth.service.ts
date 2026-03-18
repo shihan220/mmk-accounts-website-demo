@@ -17,7 +17,6 @@ interface RegisterPayload {
   phone: string;
   password: string;
   role: UserRole;
-  adminSignupCode?: string;
 }
 
 export interface AuthUserResponse {
@@ -132,17 +131,6 @@ export const register = async (
   payload: RegisterPayload,
   context: TokenContext
 ): Promise<{ user: AuthUserResponse; accessToken: string; refreshToken: string }> => {
-  if (payload.role === UserRole.ADMIN) {
-    const configuredAdminCode = env.ADMIN_SIGNUP_CODE?.trim();
-    if (!configuredAdminCode) {
-      throw new AppError(403, 'ADMIN_SIGNUP_DISABLED', 'Admin sign-up is currently disabled');
-    }
-
-    if (payload.adminSignupCode?.trim() !== configuredAdminCode) {
-      throw new AppError(403, 'INVALID_ADMIN_SIGNUP_CODE', 'Invalid admin sign-up code');
-    }
-  }
-
   const passwordHash = await argon2.hash(payload.password);
   const normalizedPhone = normalizeAndValidatePhone(payload.phone);
   if (!normalizedPhone) {

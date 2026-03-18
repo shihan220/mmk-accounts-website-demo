@@ -60,8 +60,7 @@ export const registerHandler = asyncHandler(async (req: Request, res: Response) 
       email: req.body.email,
       phone: req.body.phone,
       password: req.body.password,
-      role: req.body.role,
-      adminSignupCode: req.body.adminSignupCode
+      role: req.body.role
     },
     getClientContext(req)
   );
