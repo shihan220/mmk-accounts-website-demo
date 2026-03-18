@@ -47,6 +47,59 @@
                 </form>
                 <p id="authError" class="error-text" role="alert"></p>
 
+                <div id="loginVerifySection" class="auth-step is-hidden">
+                    <p id="loginVerifyHint" class="auth-note"></p>
+                    <form id="loginVerifyForm" class="stack-form">
+                        <label>
+                            Security Code
+                            <input id="loginVerifyCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" required>
+                        </label>
+                        <div class="auth-inline-actions">
+                            <button id="loginVerifyBtn" class="btn btn-primary" type="submit">Verify & Sign In</button>
+                            <button id="loginVerifyCancelBtn" class="btn btn-secondary" type="button">Cancel</button>
+                        </div>
+                    </form>
+                    <p id="loginVerifyError" class="error-text" role="alert"></p>
+                </div>
+
+                <button id="forgotPasswordToggle" class="auth-link-btn" type="button">Forgot password?</button>
+
+                <div id="forgotPasswordSection" class="auth-step is-hidden">
+                    <h3>Reset Password</h3>
+                    <form id="forgotRequestForm" class="stack-form">
+                        <label>
+                            Email or Phone
+                            <input id="forgotIdentifier" type="text" placeholder="name@mmkaccountants.com or +447700900001" required>
+                        </label>
+                        <button id="forgotRequestBtn" class="btn btn-secondary" type="submit">Send Security Code</button>
+                    </form>
+                    <p id="forgotHint" class="auth-note"></p>
+
+                    <form id="forgotResetForm" class="stack-form is-hidden">
+                        <label>
+                            Security Code
+                            <input id="forgotCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" required>
+                        </label>
+                        <label>
+                            New Password
+                            <div class="password-field">
+                                <button class="password-toggle" type="button" data-password-toggle="forgotNewPassword" aria-label="Show password" aria-pressed="false">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12"></path>
+                                        <circle cx="12" cy="12" r="3.25"></circle>
+                                    </svg>
+                                </button>
+                                <input id="forgotNewPassword" type="password" minlength="8" placeholder="Minimum 8 characters" required>
+                            </div>
+                        </label>
+                        <div class="auth-inline-actions">
+                            <button id="forgotResetBtn" class="btn btn-primary" type="submit">Reset Password</button>
+                            <button id="forgotCancelBtn" class="btn btn-secondary" type="button">Cancel</button>
+                        </div>
+                    </form>
+                    <p id="forgotError" class="error-text" role="alert"></p>
+                </div>
+
                 <hr class="auth-divider">
 
                 <h3>Create Account</h3>
@@ -85,6 +138,21 @@
                     <button id="registerBtn" class="btn btn-secondary" type="submit">Create Account</button>
                 </form>
                 <p id="registerError" class="error-text" role="alert"></p>
+
+                <div id="registerVerifySection" class="auth-step is-hidden">
+                    <p id="registerVerifyHint" class="auth-note"></p>
+                    <form id="registerVerifyForm" class="stack-form">
+                        <label>
+                            Security Code
+                            <input id="registerVerifyCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" required>
+                        </label>
+                        <div class="auth-inline-actions">
+                            <button id="registerVerifyBtn" class="btn btn-primary" type="submit">Verify & Create Account</button>
+                            <button id="registerVerifyCancelBtn" class="btn btn-secondary" type="button">Cancel</button>
+                        </div>
+                    </form>
+                    <p id="registerVerifyError" class="error-text" role="alert"></p>
+                </div>
             </div>
         </section>
 

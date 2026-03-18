@@ -187,6 +187,38 @@ p {
     margin: 18px 0;
 }
 
+.auth-step {
+    margin-top: 12px;
+}
+
+.auth-note {
+    color: var(--ink-soft);
+    margin: 8px 0 0;
+    line-height: 1.45;
+    font-size: 0.86rem;
+}
+
+.auth-inline-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.auth-link-btn {
+    border: 0;
+    background: transparent;
+    color: var(--brand);
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 4px 0;
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+.auth-link-btn:hover {
+    text-decoration: underline;
+}
+
 .stack-form {
     display: grid;
     gap: 12px;

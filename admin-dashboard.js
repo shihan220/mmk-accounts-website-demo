@@ -13,6 +13,11 @@
         accessToken: null,
         refreshToken: null,
         user: null,
+        authChallenges: {
+            login: null,
+            register: null,
+            passwordReset: null
+        },
         activeView: 'overview',
         loaded: {
             overview: false,
@@ -88,6 +93,25 @@
         els.loginPassword = getEl('loginPassword');
         els.loginBtn = getEl('loginBtn');
         els.authError = getEl('authError');
+        els.loginVerifySection = getEl('loginVerifySection');
+        els.loginVerifyForm = getEl('loginVerifyForm');
+        els.loginVerifyHint = getEl('loginVerifyHint');
+        els.loginVerifyCode = getEl('loginVerifyCode');
+        els.loginVerifyBtn = getEl('loginVerifyBtn');
+        els.loginVerifyCancelBtn = getEl('loginVerifyCancelBtn');
+        els.loginVerifyError = getEl('loginVerifyError');
+        els.forgotPasswordToggle = getEl('forgotPasswordToggle');
+        els.forgotPasswordSection = getEl('forgotPasswordSection');
+        els.forgotRequestForm = getEl('forgotRequestForm');
+        els.forgotIdentifier = getEl('forgotIdentifier');
+        els.forgotRequestBtn = getEl('forgotRequestBtn');
+        els.forgotHint = getEl('forgotHint');
+        els.forgotResetForm = getEl('forgotResetForm');
+        els.forgotCode = getEl('forgotCode');
+        els.forgotNewPassword = getEl('forgotNewPassword');
+        els.forgotResetBtn = getEl('forgotResetBtn');
+        els.forgotCancelBtn = getEl('forgotCancelBtn');
+        els.forgotError = getEl('forgotError');
         els.registerForm = getEl('registerForm');
         els.registerName = getEl('registerName');
         els.registerEmail = getEl('registerEmail');
@@ -96,6 +120,13 @@
         els.registerRole = getEl('registerRole');
         els.registerBtn = getEl('registerBtn');
         els.registerError = getEl('registerError');
+        els.registerVerifySection = getEl('registerVerifySection');
+        els.registerVerifyForm = getEl('registerVerifyForm');
+        els.registerVerifyHint = getEl('registerVerifyHint');
+        els.registerVerifyCode = getEl('registerVerifyCode');
+        els.registerVerifyBtn = getEl('registerVerifyBtn');
+        els.registerVerifyCancelBtn = getEl('registerVerifyCancelBtn');
+        els.registerVerifyError = getEl('registerVerifyError');
         els.logoutBtn = getEl('logoutBtn');
         els.refreshAllBtn = getEl('refreshAllBtn');
 
@@ -178,7 +209,15 @@
     function bindEvents() {
         initializePasswordToggles();
         els.loginForm.addEventListener('submit', onLoginSubmit);
+        els.loginVerifyForm.addEventListener('submit', onLoginVerifySubmit);
+        els.loginVerifyCancelBtn.addEventListener('click', resetLoginVerification);
+        els.forgotPasswordToggle.addEventListener('click', toggleForgotPasswordSection);
+        els.forgotRequestForm.addEventListener('submit', onForgotRequestSubmit);
+        els.forgotResetForm.addEventListener('submit', onForgotResetSubmit);
+        els.forgotCancelBtn.addEventListener('click', resetForgotPasswordFlow);
         els.registerForm.addEventListener('submit', onRegisterSubmit);
+        els.registerVerifyForm.addEventListener('submit', onRegisterVerifySubmit);
+        els.registerVerifyCancelBtn.addEventListener('click', resetRegisterVerification);
         els.logoutBtn.addEventListener('click', onLogout);
         els.refreshAllBtn.addEventListener('click', async () => {
             await refreshCurrentView(true);
@@ -353,6 +392,7 @@
     async function onLoginSubmit(event) {
         event.preventDefault();
         els.authError.textContent = '';
+        els.loginVerifyError.textContent = '';
         const identifier = els.loginIdentifier.value.trim();
         const password = els.loginPassword.value;
         if (!identifier || !password) {
@@ -360,18 +400,27 @@
             return;
         }
 
-        setButtonLoading(els.loginBtn, true, 'Signing In...');
+        setButtonLoading(els.loginBtn, true, 'Sending Code...');
         try {
-            const body = await apiRequest('/auth/login', {
+            const body = await apiRequest('/auth/login/request-code', {
                 method: 'POST',
                 body: { identifier, password },
                 auth: false,
                 retry: false
             });
-            setSession(body.data);
-            await bootstrapAuthenticated();
-            showFlash('Signed in successfully.');
+            const challenge = body?.data;
+            if (!challenge?.challengeId) {
+                throw new Error('Could not start login verification.');
+            }
+
+            state.authChallenges.login = challenge;
+            els.loginVerifyHint.textContent = describeSecurityCodeHint(challenge, 'login');
+            els.loginForm.classList.add('is-hidden');
+            els.loginVerifySection.classList.remove('is-hidden');
+            els.loginVerifyCode.value = '';
             els.loginPassword.value = '';
+            els.loginVerifyCode.focus();
+            showFlash('Security code sent. Enter it to finish login.');
         } catch (error) {
             els.authError.textContent = error.message || 'Login failed.';
         } finally {
@@ -379,9 +428,49 @@
         }
     }
 
+    async function onLoginVerifySubmit(event) {
+        event.preventDefault();
+        els.loginVerifyError.textContent = '';
+
+        const challenge = state.authChallenges.login;
+        if (!challenge?.challengeId) {
+            els.loginVerifyError.textContent = 'Login verification session expired. Please sign in again.';
+            resetLoginVerification();
+            return;
+        }
+
+        const code = els.loginVerifyCode.value.trim();
+        if (!/^\d{6}$/.test(code)) {
+            els.loginVerifyError.textContent = 'Security code must be 6 digits.';
+            return;
+        }
+
+        setButtonLoading(els.loginVerifyBtn, true, 'Verifying...');
+        try {
+            const body = await apiRequest('/auth/login/verify-code', {
+                method: 'POST',
+                body: {
+                    challengeId: challenge.challengeId,
+                    code
+                },
+                auth: false,
+                retry: false
+            });
+            setSession(body.data);
+            resetLoginVerification();
+            await bootstrapAuthenticated();
+            showFlash('Signed in successfully.');
+        } catch (error) {
+            els.loginVerifyError.textContent = error.message || 'Verification failed.';
+        } finally {
+            setButtonLoading(els.loginVerifyBtn, false, 'Verify & Sign In');
+        }
+    }
+
     async function onRegisterSubmit(event) {
         event.preventDefault();
         els.registerError.textContent = '';
+        els.registerVerifyError.textContent = '';
 
         const payload = {
             fullName: els.registerName.value.trim(),
@@ -396,25 +485,215 @@
             return;
         }
 
-        setButtonLoading(els.registerBtn, true, 'Creating...');
+        setButtonLoading(els.registerBtn, true, 'Sending Code...');
         try {
-            const body = await apiRequest('/auth/register', {
+            const body = await apiRequest('/auth/register/request-code', {
                 method: 'POST',
                 body: payload,
                 auth: false,
                 retry: false
             });
+            const challenge = body?.data;
+            if (!challenge?.challengeId) {
+                throw new Error('Could not start registration verification.');
+            }
+
+            state.authChallenges.register = challenge;
+            els.registerVerifyHint.textContent = describeSecurityCodeHint(challenge, 'registration');
+            els.registerForm.classList.add('is-hidden');
+            els.registerVerifySection.classList.remove('is-hidden');
+            els.registerVerifyCode.value = '';
+            els.registerVerifyCode.focus();
+            showFlash('Security code sent. Enter it to complete account creation.');
+        } catch (error) {
+            els.registerError.textContent = error.message || 'Registration failed.';
+        } finally {
+            setButtonLoading(els.registerBtn, false, 'Create Account');
+        }
+    }
+
+    async function onRegisterVerifySubmit(event) {
+        event.preventDefault();
+        els.registerVerifyError.textContent = '';
+
+        const challenge = state.authChallenges.register;
+        if (!challenge?.challengeId) {
+            els.registerVerifyError.textContent = 'Registration verification session expired. Please retry.';
+            resetRegisterVerification();
+            return;
+        }
+
+        const code = els.registerVerifyCode.value.trim();
+        if (!/^\d{6}$/.test(code)) {
+            els.registerVerifyError.textContent = 'Security code must be 6 digits.';
+            return;
+        }
+
+        setButtonLoading(els.registerVerifyBtn, true, 'Verifying...');
+        try {
+            const body = await apiRequest('/auth/register/verify-code', {
+                method: 'POST',
+                body: {
+                    challengeId: challenge.challengeId,
+                    code
+                },
+                auth: false,
+                retry: false
+            });
             setSession(body.data);
+            resetRegisterVerification();
             await bootstrapAuthenticated();
             showFlash('Account created and signed in.');
             els.registerForm.reset();
             els.registerRole.value = 'STAFF';
             resetPasswordToggles();
         } catch (error) {
-            els.registerError.textContent = error.message || 'Registration failed.';
+            els.registerVerifyError.textContent = error.message || 'Verification failed.';
         } finally {
-            setButtonLoading(els.registerBtn, false, 'Create Account');
+            setButtonLoading(els.registerVerifyBtn, false, 'Verify & Create Account');
         }
+    }
+
+    function toggleForgotPasswordSection() {
+        const hidden = els.forgotPasswordSection.classList.contains('is-hidden');
+        if (!hidden) {
+            resetForgotPasswordFlow();
+            return;
+        }
+
+        els.forgotPasswordSection.classList.remove('is-hidden');
+        els.forgotPasswordToggle.textContent = 'Cancel reset';
+        els.forgotIdentifier.focus();
+    }
+
+    async function onForgotRequestSubmit(event) {
+        event.preventDefault();
+        els.forgotError.textContent = '';
+
+        const identifier = els.forgotIdentifier.value.trim();
+        if (!identifier) {
+            els.forgotError.textContent = 'Email or phone is required.';
+            return;
+        }
+
+        setButtonLoading(els.forgotRequestBtn, true, 'Sending Code...');
+        try {
+            const body = await apiRequest('/auth/password/forgot', {
+                method: 'POST',
+                body: { identifier },
+                auth: false,
+                retry: false
+            });
+            const challenge = body?.data;
+            if (!challenge?.challengeId) {
+                throw new Error('Could not start password reset verification.');
+            }
+
+            state.authChallenges.passwordReset = challenge;
+            els.forgotHint.textContent = describeSecurityCodeHint(challenge, 'password reset');
+            els.forgotResetForm.classList.remove('is-hidden');
+            els.forgotCode.value = '';
+            els.forgotNewPassword.value = '';
+            resetPasswordToggles();
+            els.forgotCode.focus();
+            showFlash('Security code sent. Enter it and set a new password.');
+        } catch (error) {
+            els.forgotError.textContent = error.message || 'Password reset request failed.';
+        } finally {
+            setButtonLoading(els.forgotRequestBtn, false, 'Send Security Code');
+        }
+    }
+
+    async function onForgotResetSubmit(event) {
+        event.preventDefault();
+        els.forgotError.textContent = '';
+
+        const challenge = state.authChallenges.passwordReset;
+        if (!challenge?.challengeId) {
+            els.forgotError.textContent = 'Password reset session expired. Request a new code.';
+            return;
+        }
+
+        const code = els.forgotCode.value.trim();
+        const newPassword = els.forgotNewPassword.value;
+        if (!/^\d{6}$/.test(code)) {
+            els.forgotError.textContent = 'Security code must be 6 digits.';
+            return;
+        }
+        if (!newPassword || newPassword.length < 8) {
+            els.forgotError.textContent = 'New password must be at least 8 characters.';
+            return;
+        }
+
+        setButtonLoading(els.forgotResetBtn, true, 'Resetting...');
+        try {
+            await apiRequest('/auth/password/reset', {
+                method: 'POST',
+                body: {
+                    challengeId: challenge.challengeId,
+                    code,
+                    newPassword
+                },
+                auth: false,
+                retry: false
+            });
+
+            els.loginIdentifier.value = els.forgotIdentifier.value.trim();
+            resetForgotPasswordFlow();
+            showFlash('Password reset successful. Sign in with your new password.');
+        } catch (error) {
+            els.forgotError.textContent = error.message || 'Password reset failed.';
+        } finally {
+            setButtonLoading(els.forgotResetBtn, false, 'Reset Password');
+        }
+    }
+
+    function describeSecurityCodeHint(challenge, purposeLabel) {
+        const parts = [];
+        if (challenge?.destination) {
+            parts.push(`Security code sent to ${challenge.destination}.`);
+        } else {
+            parts.push(`Security code sent for ${purposeLabel}.`);
+        }
+        if (challenge?.expiresAt) {
+            parts.push(`Expires ${formatDate(challenge.expiresAt)}.`);
+        }
+        if (challenge?.deliveryMethod === 'onscreen' && challenge?.developmentCode) {
+            parts.push(`Development code: ${challenge.developmentCode}`);
+        }
+        return parts.join(' ');
+    }
+
+    function resetLoginVerification() {
+        state.authChallenges.login = null;
+        els.loginVerifySection.classList.add('is-hidden');
+        els.loginVerifyHint.textContent = '';
+        els.loginVerifyError.textContent = '';
+        els.loginVerifyForm.reset();
+        els.loginForm.classList.remove('is-hidden');
+        resetPasswordToggles();
+    }
+
+    function resetRegisterVerification() {
+        state.authChallenges.register = null;
+        els.registerVerifySection.classList.add('is-hidden');
+        els.registerVerifyHint.textContent = '';
+        els.registerVerifyError.textContent = '';
+        els.registerVerifyForm.reset();
+        els.registerForm.classList.remove('is-hidden');
+        resetPasswordToggles();
+    }
+
+    function resetForgotPasswordFlow() {
+        state.authChallenges.passwordReset = null;
+        els.forgotPasswordSection.classList.add('is-hidden');
+        els.forgotPasswordToggle.textContent = 'Forgot password?';
+        els.forgotHint.textContent = '';
+        els.forgotError.textContent = '';
+        els.forgotRequestForm.reset();
+        els.forgotResetForm.classList.add('is-hidden');
+        els.forgotResetForm.reset();
+        resetPasswordToggles();
     }
 
     async function onLogout() {
@@ -501,6 +780,10 @@
         els.currentUserRole.textContent = 'GUEST';
         els.authError.textContent = '';
         els.registerError.textContent = '';
+        resetLoginVerification();
+        resetRegisterVerification();
+        resetForgotPasswordFlow();
+        resetPasswordToggles();
 
         state.activeView = 'overview';
         state.selectedInquiry = null;
