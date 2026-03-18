@@ -18,6 +18,8 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MINUTES: z.coerce.number().int().positive().default(15),
   RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(200),
   AUTH_RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(20),
+  AUTH_CODE_TTL_MINUTES: z.coerce.number().int().positive().default(7),
+  AUTH_CODE_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
   FORM_RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(20),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().positive().default(587),

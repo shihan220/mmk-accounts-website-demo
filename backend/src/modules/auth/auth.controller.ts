@@ -5,8 +5,14 @@ import { AppError } from '../../utils/app-error';
 import {
   getUserById,
   login,
+  requestLoginCode,
+  requestPasswordResetCode,
+  requestRegistrationCode,
   register,
+  resetPasswordWithCode,
   refreshAccess,
+  verifyLoginCode,
+  verifyRegistrationCode,
   revokeAllUserRefreshTokens,
   revokeRefreshToken
 } from './auth.service';
@@ -29,6 +35,44 @@ const getClientContext = (req: Request) => ({
 
 export const loginHandler = asyncHandler(async (req: Request, res: Response) => {
   const result = await login(req.body.identifier, req.body.password, getClientContext(req));
+
+  res.cookie(refreshCookieName, result.refreshToken, getCookieOptions());
+
+  await createAuditLog({
+    actorId: result.user.id,
+    action: 'AUTH_LOGIN',
+    entityType: 'User',
+    entityId: result.user.id,
+    ipAddress: req.ip,
+    userAgent: req.get('user-agent') ?? undefined
+  });
+
+  sendSuccess(
+    res,
+    200,
+    {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken
+    },
+    'Login successful'
+  );
+});
+
+export const loginRequestCodeHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await requestLoginCode(req.body.identifier, req.body.password);
+
+  sendSuccess(res, 200, result, 'Security code sent for login');
+});
+
+export const loginVerifyCodeHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await verifyLoginCode(
+    {
+      challengeId: req.body.challengeId,
+      code: req.body.code
+    },
+    getClientContext(req)
+  );
 
   res.cookie(refreshCookieName, result.refreshToken, getCookieOptions());
 
@@ -87,6 +131,66 @@ export const registerHandler = asyncHandler(async (req: Request, res: Response) 
     },
     'Account created successfully'
   );
+});
+
+export const registerRequestCodeHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await requestRegistrationCode({
+    fullName: req.body.fullName,
+    email: req.body.email,
+    phone: req.body.phone,
+    password: req.body.password,
+    role: req.body.role
+  });
+
+  sendSuccess(res, 200, result, 'Security code sent for registration');
+});
+
+export const registerVerifyCodeHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await verifyRegistrationCode(
+    {
+      challengeId: req.body.challengeId,
+      code: req.body.code
+    },
+    getClientContext(req)
+  );
+
+  res.cookie(refreshCookieName, result.refreshToken, getCookieOptions());
+
+  await createAuditLog({
+    actorId: result.user.id,
+    action: 'AUTH_REGISTER',
+    entityType: 'User',
+    entityId: result.user.id,
+    metadata: { role: result.user.role },
+    ipAddress: req.ip,
+    userAgent: req.get('user-agent') ?? undefined
+  });
+
+  sendSuccess(
+    res,
+    201,
+    {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken
+    },
+    'Account created successfully'
+  );
+});
+
+export const forgotPasswordRequestCodeHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await requestPasswordResetCode(req.body.identifier);
+  sendSuccess(res, 200, result, 'Security code sent for password reset');
+});
+
+export const forgotPasswordResetHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await resetPasswordWithCode({
+    challengeId: req.body.challengeId,
+    code: req.body.code,
+    newPassword: req.body.newPassword
+  });
+
+  sendSuccess(res, 200, result, 'Password reset successful');
 });
 
 export const refreshHandler = asyncHandler(async (req: Request, res: Response) => {

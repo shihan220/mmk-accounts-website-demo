@@ -83,6 +83,7 @@ Other actions (tools calculators, company search, VAT checker, MTD checker, news
 - `InquiryNote`
 - `NewsletterSubscriber`
 - `AuditLog`
+- `AuthChallenge`
 
 ### Auth and authorization
 
@@ -146,6 +147,7 @@ Optional integrations:
 
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `SMTP_FROM`
 - `NOTIFICATION_TO`
+- `AUTH_CODE_TTL_MINUTES`, `AUTH_CODE_MAX_ATTEMPTS`
 
 ## 6) Setup
 
@@ -182,6 +184,8 @@ Default seed users:
 
 Base prefix: `/api/v1`
 
+Note: in non-production mode, if SMTP is not configured, auth challenge endpoints return `developmentCode` in the response so local verification can still complete.
+
 ### Public
 
 - `GET /health`
@@ -192,11 +196,21 @@ Base prefix: `/api/v1`
 
 ### Auth
 
-- `POST /auth/login`
+- `POST /auth/login/request-code`
+- `POST /auth/login/verify-code`
+- `POST /auth/register/request-code`
+- `POST /auth/register/verify-code`
+- `POST /auth/password/forgot`
+- `POST /auth/password/reset`
 - `POST /auth/refresh`
 - `POST /auth/logout`
 - `POST /auth/logout-all` (auth)
 - `GET /auth/me` (auth)
+
+Legacy compatibility routes (still available):
+
+- `POST /auth/login`
+- `POST /auth/register`
 
 ### Protected (`ADMIN`/`STAFF` unless stated)
 
@@ -266,6 +280,7 @@ You can override by setting `window.MMK_API_BASE` before `script.js` loads.
 - Global + route-specific rate limiting
 - Argon2 password hashing
 - Refresh token rotation and revocation
+- Login/register/password-reset verification challenge codes
 - Centralized validation and error handling
 - Audit logging for sensitive actions
 
