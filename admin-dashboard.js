@@ -74,7 +74,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         cacheElements();
         bindEvents();
-        els.apiBasePill.textContent = `API: ${API_BASE}`;
         restoreSession();
     });
 
@@ -97,7 +96,6 @@
         els.registerError = getEl('registerError');
         els.logoutBtn = getEl('logoutBtn');
         els.refreshAllBtn = getEl('refreshAllBtn');
-        els.apiBasePill = getEl('apiBasePill');
 
         els.currentUserName = getEl('currentUserName');
         els.currentUserEmail = getEl('currentUserEmail');
