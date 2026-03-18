@@ -25,8 +25,7 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().default('no-reply@mmkaccountants.com'),
-  NOTIFICATION_TO: z.string().optional(),
-  ADMIN_SIGNUP_CODE: z.string().optional()
+  NOTIFICATION_TO: z.string().optional()
 });
 
 const parsed = envSchema.parse(process.env);

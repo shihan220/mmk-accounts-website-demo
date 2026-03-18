@@ -41,17 +41,7 @@ export const registerBodySchema = z
     email: emailSchema,
     phone: phoneSchema,
     password: z.string().min(8).max(128),
-    role: z.nativeEnum(UserRole).default(UserRole.STAFF),
-    adminSignupCode: z.string().trim().min(4).max(128).optional()
-  })
-  .superRefine((payload, ctx) => {
-    if (payload.role === UserRole.ADMIN && !payload.adminSignupCode) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['adminSignupCode'],
-        message: 'adminSignupCode is required when role is ADMIN'
-      });
-    }
+    role: z.nativeEnum(UserRole).default(UserRole.STAFF)
   });
 
 export const refreshBodySchema = z.object({
