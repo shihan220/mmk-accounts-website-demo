@@ -11,6 +11,18 @@ export const normalizePhone = (input: string): string => {
   const digitsOnly = compact.replace(/\D/g, '');
   if (!digitsOnly) return '';
 
+  if (compact.startsWith('+')) {
+    const withoutLeadingZeros = digitsOnly.replace(/^0+/, '');
+    return withoutLeadingZeros ? `+${withoutLeadingZeros}` : '';
+  }
+
+  // Accept UK local mobile/landline style inputs such as 07... or 01...
+  // by converting the local trunk prefix to +44.
+  if (digitsOnly.startsWith('0')) {
+    const nationalNumber = digitsOnly.replace(/^0+/, '');
+    return nationalNumber ? `+44${nationalNumber}` : '';
+  }
+
   return `+${digitsOnly}`;
 };
 
