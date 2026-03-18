@@ -14,6 +14,7 @@ async function main() {
   const admin = await prisma.user.upsert({
     where: { email: adminEmail.toLowerCase() },
     update: {
+      phone: '+447700900001',
       fullName: adminName,
       role: UserRole.ADMIN,
       isActive: true,
@@ -21,6 +22,7 @@ async function main() {
     },
     create: {
       email: adminEmail.toLowerCase(),
+      phone: '+447700900001',
       fullName: adminName,
       role: UserRole.ADMIN,
       isActive: true,
@@ -31,6 +33,7 @@ async function main() {
   const staff = await prisma.user.upsert({
     where: { email: 'staff@mmkaccountants.local' },
     update: {
+      phone: '+447700900002',
       fullName: 'MMK Staff',
       role: UserRole.STAFF,
       isActive: true,
@@ -38,6 +41,7 @@ async function main() {
     },
     create: {
       email: 'staff@mmkaccountants.local',
+      phone: '+447700900002',
       fullName: 'MMK Staff',
       role: UserRole.STAFF,
       isActive: true,

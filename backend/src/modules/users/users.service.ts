@@ -14,6 +14,7 @@ export interface ListUsersOptions {
 const userSelect = {
   id: true,
   email: true,
+  phone: true,
   fullName: true,
   role: true,
   isActive: true,
@@ -33,7 +34,8 @@ export const listUsers = async (options: ListUsersOptions): Promise<{
       ? {
           OR: [
             { fullName: { contains: options.search, mode: 'insensitive' } },
-            { email: { contains: options.search, mode: 'insensitive' } }
+            { email: { contains: options.search, mode: 'insensitive' } },
+            { phone: { contains: options.search, mode: 'insensitive' } }
           ]
         }
       : {}),
@@ -80,6 +82,7 @@ export const getUserById = async (id: string): Promise<UserResponse> => {
 
 export const createUser = async (payload: {
   email: string;
+  phone: string;
   fullName: string;
   password: string;
   role: UserRole;
@@ -91,6 +94,7 @@ export const createUser = async (payload: {
     return await prisma.user.create({
       data: {
         email: payload.email,
+        phone: payload.phone,
         fullName: payload.fullName,
         passwordHash,
         role: payload.role,
@@ -100,6 +104,10 @@ export const createUser = async (payload: {
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const target = Array.isArray(error.meta?.target) ? error.meta.target.map((entry) => String(entry)) : [];
+      if (target.includes('phone')) {
+        throw new AppError(409, 'PHONE_IN_USE', 'A user with this phone number already exists');
+      }
       throw new AppError(409, 'EMAIL_IN_USE', 'A user with this email already exists');
     }
     throw error;
@@ -108,7 +116,7 @@ export const createUser = async (payload: {
 
 export const updateUser = async (
   id: string,
-  payload: Partial<{ email: string; fullName: string; role: UserRole; isActive: boolean }>
+  payload: Partial<{ email: string; phone: string | null; fullName: string; role: UserRole; isActive: boolean }>
 ): Promise<UserResponse> => {
   await getUserById(id);
 
@@ -120,6 +128,10 @@ export const updateUser = async (
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      const target = Array.isArray(error.meta?.target) ? error.meta.target.map((entry) => String(entry)) : [];
+      if (target.includes('phone')) {
+        throw new AppError(409, 'PHONE_IN_USE', 'A user with this phone number already exists');
+      }
       throw new AppError(409, 'EMAIL_IN_USE', 'A user with this email already exists');
     }
     throw error;
