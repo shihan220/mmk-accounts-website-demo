@@ -1,4 +1,5 @@
 (() => {
+    const PASSWORD_AUTO_HIDE_MS = 7000;
     const API_BASE = (() => {
         if (window.MMK_API_BASE) return window.MMK_API_BASE;
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -70,6 +71,7 @@
     };
 
     const els = {};
+    const passwordHideTimers = new Map();
 
     document.addEventListener('DOMContentLoaded', () => {
         cacheElements();
@@ -261,6 +263,7 @@
 
             updatePasswordToggleButton(button, false);
             input.type = 'password';
+            clearPasswordAutoHideTimer(input);
 
             if (button.dataset.passwordToggleBound === '1') return;
             button.dataset.passwordToggleBound = '1';
@@ -269,6 +272,13 @@
                 const shouldShow = input.type === 'password';
                 input.type = shouldShow ? 'text' : 'password';
                 updatePasswordToggleButton(button, shouldShow);
+
+                if (shouldShow) {
+                    startPasswordAutoHide(button, input);
+                } else {
+                    clearPasswordAutoHideTimer(input);
+                }
+
                 input.focus({ preventScroll: true });
                 const cursorPos = input.value.length;
                 input.setSelectionRange(cursorPos, cursorPos);
@@ -284,12 +294,31 @@
             const input = document.getElementById(targetId);
             if (!(input instanceof HTMLInputElement)) return;
             input.type = 'password';
+            clearPasswordAutoHideTimer(input);
             updatePasswordToggleButton(button, false);
         });
     }
 
+    function startPasswordAutoHide(button, input) {
+        clearPasswordAutoHideTimer(input);
+        const timerId = window.setTimeout(() => {
+            input.type = 'password';
+            updatePasswordToggleButton(button, false);
+            passwordHideTimers.delete(input);
+        }, PASSWORD_AUTO_HIDE_MS);
+        passwordHideTimers.set(input, timerId);
+    }
+
+    function clearPasswordAutoHideTimer(input) {
+        const timerId = passwordHideTimers.get(input);
+        if (!timerId) return;
+        window.clearTimeout(timerId);
+        passwordHideTimers.delete(input);
+    }
+
     function updatePasswordToggleButton(button, isVisible) {
         button.classList.toggle('is-visible', isVisible);
+        button.classList.toggle('is-countdown', isVisible);
         button.setAttribute('aria-pressed', String(isVisible));
         button.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
         button.title = isVisible ? 'Hide password' : 'Show password';
