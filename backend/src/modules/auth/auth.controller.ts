@@ -5,6 +5,7 @@ import { AppError } from '../../utils/app-error';
 import {
   getUserById,
   login,
+  register,
   refreshAccess,
   revokeAllUserRefreshTokens,
   revokeRefreshToken
@@ -27,7 +28,7 @@ const getClientContext = (req: Request) => ({
 });
 
 export const loginHandler = asyncHandler(async (req: Request, res: Response) => {
-  const result = await login(req.body.email, req.body.password, getClientContext(req));
+  const result = await login(req.body.identifier, req.body.password, getClientContext(req));
 
   res.cookie(refreshCookieName, result.refreshToken, getCookieOptions());
 
@@ -49,6 +50,43 @@ export const loginHandler = asyncHandler(async (req: Request, res: Response) => 
       refreshToken: result.refreshToken
     },
     'Login successful'
+  );
+});
+
+export const registerHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await register(
+    {
+      fullName: req.body.fullName,
+      email: req.body.email,
+      phone: req.body.phone,
+      password: req.body.password,
+      role: req.body.role,
+      adminSignupCode: req.body.adminSignupCode
+    },
+    getClientContext(req)
+  );
+
+  res.cookie(refreshCookieName, result.refreshToken, getCookieOptions());
+
+  await createAuditLog({
+    actorId: result.user.id,
+    action: 'AUTH_REGISTER',
+    entityType: 'User',
+    entityId: result.user.id,
+    metadata: { role: result.user.role },
+    ipAddress: req.ip,
+    userAgent: req.get('user-agent') ?? undefined
+  });
+
+  sendSuccess(
+    res,
+    201,
+    {
+      user: result.user,
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken
+    },
+    'Account created successfully'
   );
 });
 

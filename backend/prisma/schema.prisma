@@ -34,6 +34,7 @@ enum SubscriberStatus {
 model User {
   id                String         @id @default(uuid())
   email             String         @unique
+  phone             String?        @unique
   fullName          String
   passwordHash      String
   role              UserRole       @default(STAFF)

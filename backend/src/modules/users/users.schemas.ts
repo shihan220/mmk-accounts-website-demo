@@ -1,5 +1,16 @@
 import { UserRole } from '@prisma/client';
 import { z } from 'zod';
+import { normalizeAndValidatePhone } from '../../utils/phone';
+
+const phoneSchema = z
+  .string()
+  .trim()
+  .min(7)
+  .max(30)
+  .transform((value) => normalizeAndValidatePhone(value))
+  .refine((value): value is string => value != null, {
+    message: 'Invalid phone number format'
+  });
 
 export const userIdParamsSchema = z.object({
   id: z.string().uuid()
@@ -18,6 +29,7 @@ export const listUsersQuerySchema = z.object({
 
 export const createUserBodySchema = z.object({
   email: z.string().email().transform((value) => value.toLowerCase().trim()),
+  phone: phoneSchema,
   fullName: z.string().min(2).max(120).trim(),
   password: z.string().min(8).max(128),
   role: z.nativeEnum(UserRole).default(UserRole.STAFF),
@@ -27,6 +39,7 @@ export const createUserBodySchema = z.object({
 export const updateUserBodySchema = z
   .object({
     email: z.string().email().transform((value) => value.toLowerCase().trim()).optional(),
+    phone: phoneSchema.optional().or(z.literal(null)),
     fullName: z.string().min(2).max(120).trim().optional(),
     role: z.nativeEnum(UserRole).optional(),
     isActive: z.boolean().optional()
