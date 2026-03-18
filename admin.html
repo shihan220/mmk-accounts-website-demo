@@ -33,7 +33,15 @@
                     </label>
                     <label>
                         Password
-                        <input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="********" required>
+                        <div class="password-field">
+                            <button class="password-toggle" type="button" data-password-toggle="loginPassword" aria-label="Show password" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12"></path>
+                                    <circle cx="12" cy="12" r="3.25"></circle>
+                                </svg>
+                            </button>
+                            <input id="loginPassword" name="password" type="password" autocomplete="current-password" placeholder="********" required>
+                        </div>
                     </label>
                     <button id="loginBtn" class="btn btn-primary" type="submit">Sign In</button>
                 </form>
@@ -57,7 +65,15 @@
                     </label>
                     <label>
                         Password
-                        <input id="registerPassword" name="password" type="password" minlength="8" placeholder="Minimum 8 characters" required>
+                        <div class="password-field">
+                            <button class="password-toggle" type="button" data-password-toggle="registerPassword" aria-label="Show password" aria-pressed="false">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12"></path>
+                                    <circle cx="12" cy="12" r="3.25"></circle>
+                                </svg>
+                            </button>
+                            <input id="registerPassword" name="password" type="password" minlength="8" placeholder="Minimum 8 characters" required>
+                        </div>
                     </label>
                     <label>
                         Role
@@ -318,7 +334,15 @@
                             </label>
                             <label>
                                 Password
-                                <input id="createUserPassword" type="password" minlength="8" required>
+                                <div class="password-field">
+                                    <button class="password-toggle" type="button" data-password-toggle="createUserPassword" aria-label="Show password" aria-pressed="false">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12"></path>
+                                            <circle cx="12" cy="12" r="3.25"></circle>
+                                        </svg>
+                                    </button>
+                                    <input id="createUserPassword" type="password" minlength="8" required>
+                                </div>
                             </label>
                             <label>
                                 Role

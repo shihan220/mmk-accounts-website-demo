@@ -174,6 +174,7 @@
     }
 
     function bindEvents() {
+        initializePasswordToggles();
         els.loginForm.addEventListener('submit', onLoginSubmit);
         els.registerForm.addEventListener('submit', onRegisterSubmit);
         els.logoutBtn.addEventListener('click', onLogout);
@@ -246,6 +247,52 @@
         });
         els.auditPrev.addEventListener('click', () => changePage('audit', -1));
         els.auditNext.addEventListener('click', () => changePage('audit', 1));
+    }
+
+    function initializePasswordToggles() {
+        const toggleButtons = Array.from(document.querySelectorAll('[data-password-toggle]'));
+
+        toggleButtons.forEach((button) => {
+            const targetId = button.getAttribute('data-password-toggle');
+            if (!targetId) return;
+
+            const input = document.getElementById(targetId);
+            if (!(input instanceof HTMLInputElement)) return;
+
+            updatePasswordToggleButton(button, false);
+            input.type = 'password';
+
+            if (button.dataset.passwordToggleBound === '1') return;
+            button.dataset.passwordToggleBound = '1';
+
+            button.addEventListener('click', () => {
+                const shouldShow = input.type === 'password';
+                input.type = shouldShow ? 'text' : 'password';
+                updatePasswordToggleButton(button, shouldShow);
+                input.focus({ preventScroll: true });
+                const cursorPos = input.value.length;
+                input.setSelectionRange(cursorPos, cursorPos);
+            });
+        });
+    }
+
+    function resetPasswordToggles() {
+        const toggleButtons = Array.from(document.querySelectorAll('[data-password-toggle]'));
+        toggleButtons.forEach((button) => {
+            const targetId = button.getAttribute('data-password-toggle');
+            if (!targetId) return;
+            const input = document.getElementById(targetId);
+            if (!(input instanceof HTMLInputElement)) return;
+            input.type = 'password';
+            updatePasswordToggleButton(button, false);
+        });
+    }
+
+    function updatePasswordToggleButton(button, isVisible) {
+        button.classList.toggle('is-visible', isVisible);
+        button.setAttribute('aria-pressed', String(isVisible));
+        button.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
+        button.title = isVisible ? 'Hide password' : 'Show password';
     }
 
     function getEl(id) {
@@ -335,6 +382,7 @@
             showFlash('Account created and signed in.');
             els.registerForm.reset();
             els.registerRole.value = 'STAFF';
+            resetPasswordToggles();
         } catch (error) {
             els.registerError.textContent = error.message || 'Registration failed.';
         } finally {
@@ -936,6 +984,7 @@
             els.createUserForm.reset();
             els.createUserRole.value = 'STAFF';
             els.createUserActive.checked = true;
+            resetPasswordToggles();
             await Promise.all([loadUsers(true), loadAssignableUsers(true)]);
         } catch (error) {
             showFlash(`Create user failed: ${error.message}`, 'err');
