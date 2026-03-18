@@ -93,8 +93,6 @@
         els.registerPhone = getEl('registerPhone');
         els.registerPassword = getEl('registerPassword');
         els.registerRole = getEl('registerRole');
-        els.registerAdminCodeRow = getEl('registerAdminCodeRow');
-        els.registerAdminCode = getEl('registerAdminCode');
         els.registerBtn = getEl('registerBtn');
         els.registerError = getEl('registerError');
         els.logoutBtn = getEl('logoutBtn');
@@ -180,8 +178,6 @@
     function bindEvents() {
         els.loginForm.addEventListener('submit', onLoginSubmit);
         els.registerForm.addEventListener('submit', onRegisterSubmit);
-        els.registerRole.addEventListener('change', syncRegisterRoleUi);
-        syncRegisterRoleUi();
         els.logoutBtn.addEventListener('click', onLogout);
         els.refreshAllBtn.addEventListener('click', async () => {
             await refreshCurrentView(true);
@@ -311,15 +307,6 @@
         }
     }
 
-    function syncRegisterRoleUi() {
-        const isAdminRole = els.registerRole.value === 'ADMIN';
-        els.registerAdminCodeRow.classList.toggle('is-hidden', !isAdminRole);
-        els.registerAdminCode.required = isAdminRole;
-        if (!isAdminRole) {
-            els.registerAdminCode.value = '';
-        }
-    }
-
     async function onRegisterSubmit(event) {
         event.preventDefault();
         els.registerError.textContent = '';
@@ -329,8 +316,7 @@
             email: els.registerEmail.value.trim().toLowerCase(),
             phone: els.registerPhone.value.trim(),
             password: els.registerPassword.value,
-            role: els.registerRole.value,
-            adminSignupCode: els.registerAdminCode.value.trim() || undefined
+            role: els.registerRole.value
         };
 
         if (!payload.fullName || !payload.email || !payload.phone || !payload.password) {
@@ -351,7 +337,6 @@
             showFlash('Account created and signed in.');
             els.registerForm.reset();
             els.registerRole.value = 'STAFF';
-            syncRegisterRoleUi();
         } catch (error) {
             els.registerError.textContent = error.message || 'Registration failed.';
         } finally {
