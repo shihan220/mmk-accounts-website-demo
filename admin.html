@@ -26,11 +26,11 @@
         <section id="authSection" class="auth-section">
             <div class="auth-card">
                 <h2>Sign In</h2>
-                <p>Use your staff or admin credentials to access inquiry and subscriber management.</p>
+                <p>Use email or phone number to sign in. You can also create a new staff/admin account below.</p>
                 <form id="loginForm" class="stack-form">
                     <label>
-                        Email
-                        <input id="loginEmail" name="email" type="email" autocomplete="username" placeholder="admin@mmkaccountants.local" required>
+                        Email or Phone
+                        <input id="loginIdentifier" name="identifier" type="text" autocomplete="username" placeholder="admin@mmkaccountants.local or +447700900001" required>
                     </label>
                     <label>
                         Password
@@ -39,6 +39,41 @@
                     <button id="loginBtn" class="btn btn-primary" type="submit">Sign In</button>
                 </form>
                 <p id="authError" class="error-text" role="alert"></p>
+
+                <hr class="auth-divider">
+
+                <h3>Create Account</h3>
+                <form id="registerForm" class="stack-form">
+                    <label>
+                        Full Name
+                        <input id="registerName" name="fullName" type="text" placeholder="MMK Team Member" required>
+                    </label>
+                    <label>
+                        Email
+                        <input id="registerEmail" name="email" type="email" placeholder="name@mmkaccountants.com" required>
+                    </label>
+                    <label>
+                        Phone
+                        <input id="registerPhone" name="phone" type="tel" placeholder="+447700900123" required>
+                    </label>
+                    <label>
+                        Password
+                        <input id="registerPassword" name="password" type="password" minlength="8" placeholder="Minimum 8 characters" required>
+                    </label>
+                    <label>
+                        Role
+                        <select id="registerRole" name="role">
+                            <option value="STAFF">STAFF</option>
+                            <option value="ADMIN">ADMIN</option>
+                        </select>
+                    </label>
+                    <label id="registerAdminCodeRow" class="is-hidden">
+                        Admin Signup Code
+                        <input id="registerAdminCode" name="adminSignupCode" type="text" placeholder="Required for ADMIN registration">
+                    </label>
+                    <button id="registerBtn" class="btn btn-secondary" type="submit">Create Account</button>
+                </form>
+                <p id="registerError" class="error-text" role="alert"></p>
             </div>
         </section>
 
@@ -255,7 +290,7 @@
                 <div class="panel-head">
                     <h2>Users</h2>
                     <form id="usersFilters" class="inline-filters">
-                        <input id="usersSearch" type="search" placeholder="Search name or email">
+                        <input id="usersSearch" type="search" placeholder="Search name, email, or phone">
                         <select id="usersRole">
                             <option value="">All Roles</option>
                             <option value="ADMIN">ADMIN</option>
@@ -283,6 +318,10 @@
                                 <input id="createUserEmail" type="email" required>
                             </label>
                             <label>
+                                Phone
+                                <input id="createUserPhone" type="tel" placeholder="+447700900456" required>
+                            </label>
+                            <label>
                                 Password
                                 <input id="createUserPassword" type="password" minlength="8" required>
                             </label>
@@ -308,6 +347,7 @@
                                     <tr>
                                         <th>Name</th>
                                         <th>Email</th>
+                                        <th>Phone</th>
                                         <th>Role</th>
                                         <th>Active</th>
                                         <th>Action</th>

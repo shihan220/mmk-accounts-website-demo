@@ -83,10 +83,20 @@
         els.authSection = getEl('authSection');
         els.appSection = getEl('appSection');
         els.loginForm = getEl('loginForm');
-        els.loginEmail = getEl('loginEmail');
+        els.loginIdentifier = getEl('loginIdentifier');
         els.loginPassword = getEl('loginPassword');
         els.loginBtn = getEl('loginBtn');
         els.authError = getEl('authError');
+        els.registerForm = getEl('registerForm');
+        els.registerName = getEl('registerName');
+        els.registerEmail = getEl('registerEmail');
+        els.registerPhone = getEl('registerPhone');
+        els.registerPassword = getEl('registerPassword');
+        els.registerRole = getEl('registerRole');
+        els.registerAdminCodeRow = getEl('registerAdminCodeRow');
+        els.registerAdminCode = getEl('registerAdminCode');
+        els.registerBtn = getEl('registerBtn');
+        els.registerError = getEl('registerError');
         els.logoutBtn = getEl('logoutBtn');
         els.refreshAllBtn = getEl('refreshAllBtn');
         els.apiBasePill = getEl('apiBasePill');
@@ -148,6 +158,7 @@
         els.createUserForm = getEl('createUserForm');
         els.createUserName = getEl('createUserName');
         els.createUserEmail = getEl('createUserEmail');
+        els.createUserPhone = getEl('createUserPhone');
         els.createUserPassword = getEl('createUserPassword');
         els.createUserRole = getEl('createUserRole');
         els.createUserActive = getEl('createUserActive');
@@ -168,6 +179,9 @@
 
     function bindEvents() {
         els.loginForm.addEventListener('submit', onLoginSubmit);
+        els.registerForm.addEventListener('submit', onRegisterSubmit);
+        els.registerRole.addEventListener('change', syncRegisterRoleUi);
+        syncRegisterRoleUi();
         els.logoutBtn.addEventListener('click', onLogout);
         els.refreshAllBtn.addEventListener('click', async () => {
             await refreshCurrentView(true);
@@ -271,10 +285,10 @@
     async function onLoginSubmit(event) {
         event.preventDefault();
         els.authError.textContent = '';
-        const email = els.loginEmail.value.trim().toLowerCase();
+        const identifier = els.loginIdentifier.value.trim();
         const password = els.loginPassword.value;
-        if (!email || !password) {
-            els.authError.textContent = 'Email and password are required.';
+        if (!identifier || !password) {
+            els.authError.textContent = 'Identifier and password are required.';
             return;
         }
 
@@ -282,7 +296,7 @@
         try {
             const body = await apiRequest('/auth/login', {
                 method: 'POST',
-                body: { email, password },
+                body: { identifier, password },
                 auth: false,
                 retry: false
             });
@@ -294,6 +308,54 @@
             els.authError.textContent = error.message || 'Login failed.';
         } finally {
             setButtonLoading(els.loginBtn, false, 'Sign In');
+        }
+    }
+
+    function syncRegisterRoleUi() {
+        const isAdminRole = els.registerRole.value === 'ADMIN';
+        els.registerAdminCodeRow.classList.toggle('is-hidden', !isAdminRole);
+        els.registerAdminCode.required = isAdminRole;
+        if (!isAdminRole) {
+            els.registerAdminCode.value = '';
+        }
+    }
+
+    async function onRegisterSubmit(event) {
+        event.preventDefault();
+        els.registerError.textContent = '';
+
+        const payload = {
+            fullName: els.registerName.value.trim(),
+            email: els.registerEmail.value.trim().toLowerCase(),
+            phone: els.registerPhone.value.trim(),
+            password: els.registerPassword.value,
+            role: els.registerRole.value,
+            adminSignupCode: els.registerAdminCode.value.trim() || undefined
+        };
+
+        if (!payload.fullName || !payload.email || !payload.phone || !payload.password) {
+            els.registerError.textContent = 'Please complete all required fields.';
+            return;
+        }
+
+        setButtonLoading(els.registerBtn, true, 'Creating...');
+        try {
+            const body = await apiRequest('/auth/register', {
+                method: 'POST',
+                body: payload,
+                auth: false,
+                retry: false
+            });
+            setSession(body.data);
+            await bootstrapAuthenticated();
+            showFlash('Account created and signed in.');
+            els.registerForm.reset();
+            els.registerRole.value = 'STAFF';
+            syncRegisterRoleUi();
+        } catch (error) {
+            els.registerError.textContent = error.message || 'Registration failed.';
+        } finally {
+            setButtonLoading(els.registerBtn, false, 'Create Account');
         }
     }
 
@@ -380,6 +442,7 @@
         els.currentUserEmail.textContent = '';
         els.currentUserRole.textContent = 'GUEST';
         els.authError.textContent = '';
+        els.registerError.textContent = '';
 
         state.activeView = 'overview';
         state.selectedInquiry = null;
@@ -801,7 +864,7 @@
         if (!isAdmin()) return;
         if (!force && state.loaded.users) return;
 
-        renderTableLoading(els.usersBody, 5, 'Loading users...');
+        renderTableLoading(els.usersBody, 6, 'Loading users...');
         try {
             const query = buildQuery({
                 page: state.usersFilters.page,
@@ -822,14 +885,14 @@
             applyPager(els.usersPagination, els.usersPrev, els.usersNext, state.usersPagination);
             state.loaded.users = true;
         } catch (error) {
-            renderTableError(els.usersBody, 5, error.message);
+            renderTableError(els.usersBody, 6, error.message);
             showFlash(`Users: ${error.message}`, 'err');
         }
     }
 
     function renderUsers(items) {
         if (!items.length) {
-            els.usersBody.innerHTML = '<tr><td colspan="5" class="empty-state">No users matched your filters.</td></tr>';
+            els.usersBody.innerHTML = '<tr><td colspan="6" class="empty-state">No users matched your filters.</td></tr>';
             return;
         }
 
@@ -842,6 +905,7 @@
                     <tr data-id="${escapeHtml(user.id)}">
                         <td>${escapeHtml(user.fullName || '-')}</td>
                         <td>${escapeHtml(user.email || '-')}</td>
+                        <td>${escapeHtml(user.phone || '-')}</td>
                         <td>
                             <select data-field="role">${roleOptions}</select>
                         </td>
@@ -867,13 +931,14 @@
         const payload = {
             fullName: els.createUserName.value.trim(),
             email: els.createUserEmail.value.trim().toLowerCase(),
+            phone: els.createUserPhone.value.trim(),
             password: els.createUserPassword.value,
             role: els.createUserRole.value,
             isActive: els.createUserActive.checked
         };
 
-        if (!payload.fullName || !payload.email || !payload.password) {
-            showFlash('Name, email and password are required.', 'err');
+        if (!payload.fullName || !payload.email || !payload.phone || !payload.password) {
+            showFlash('Name, email, phone and password are required.', 'err');
             return;
         }
 
