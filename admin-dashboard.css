@@ -223,6 +223,7 @@ textarea {
 .password-toggle {
     position: absolute;
     left: 10px;
+    right: auto;
     top: 50%;
     transform: translateY(-50%);
     width: 24px;
@@ -269,25 +270,6 @@ textarea {
     border-radius: 2px;
     background: currentColor;
     transform: rotate(-35deg);
-}
-
-.password-toggle.is-countdown::before {
-    content: "";
-    position: absolute;
-    inset: -3px;
-    border-radius: 999px;
-    border: 2px solid rgba(54, 92, 255, 0.35);
-    border-left-color: rgba(54, 92, 255, 0.05);
-    animation: password-toggle-loop 1s linear infinite;
-}
-
-@keyframes password-toggle-loop {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 textarea {

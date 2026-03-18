@@ -318,10 +318,8 @@
 
     function updatePasswordToggleButton(button, isVisible) {
         button.classList.toggle('is-visible', isVisible);
-        button.classList.toggle('is-countdown', isVisible);
         button.setAttribute('aria-pressed', String(isVisible));
         button.setAttribute('aria-label', isVisible ? 'Hide password' : 'Show password');
-        button.title = isVisible ? 'Hide password' : 'Show password';
     }
 
     function getEl(id) {
