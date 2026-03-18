@@ -6,6 +6,7 @@
   "scripts": {
     "build": "node build.js",
     "dev": "node build.js && npx serve . -l 3000",
+    "dev:all": "bash scripts/dev-all.sh",
     "start": "npx serve . -l 3000",
     "backend:dev": "npm --prefix backend run dev",
     "backend:build": "npm --prefix backend run build",
