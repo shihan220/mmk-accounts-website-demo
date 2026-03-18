@@ -1257,7 +1257,10 @@
                             </label>
                         </td>
                         <td>
-                            <button class="btn btn-secondary" data-action="save-user">Save</button>
+                            <div class="row-actions">
+                                <button class="btn btn-secondary" data-action="save-user">Save</button>
+                                <button class="btn btn-danger" data-action="delete-user" ${state.user?.id === user.id ? 'disabled' : ''}>Delete</button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -1304,13 +1307,43 @@
     }
 
     async function onUsersTableClick(event) {
-        const button = event.target.closest('button[data-action="save-user"]');
+        const button = event.target.closest('button[data-action]');
         if (!button) return;
+
         const row = button.closest('tr[data-id]');
         if (!row) return;
         const userId = row.dataset.id;
         const existing = state.usersIndex[userId];
         if (!existing) return;
+
+        if (button.dataset.action === 'delete-user') {
+            if (userId === state.user?.id) {
+                showFlash('You cannot delete your own account while signed in.', 'err');
+                return;
+            }
+
+            const confirmed = window.confirm(
+                `Delete account for ${existing.fullName || existing.email}? This will deactivate access immediately.`
+            );
+            if (!confirmed) return;
+
+            setButtonLoading(button, true, 'Deleting...');
+            try {
+                await apiRequest(`/users/${encodeURIComponent(userId)}`, {
+                    method: 'DELETE'
+                });
+                showFlash('User account deleted (deactivated).');
+                state.loaded.overview = false;
+                await Promise.all([loadUsers(true), loadAssignableUsers(true)]);
+            } catch (error) {
+                showFlash(`User delete failed: ${error.message}`, 'err');
+            } finally {
+                setButtonLoading(button, false, 'Delete');
+            }
+            return;
+        }
+
+        if (button.dataset.action !== 'save-user') return;
 
         const roleSelect = row.querySelector('select[data-field="role"]');
         const activeCheckbox = row.querySelector('input[data-field="isActive"]');
