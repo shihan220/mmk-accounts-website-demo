@@ -3,6 +3,39 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+extract_backend_branch() {
+  local branch_ref="backend"
+  local branch_sha
+  local extract_root
+
+  if ! git -C "$ROOT_DIR" rev-parse --verify "$branch_ref" >/dev/null 2>&1; then
+    return 1
+  fi
+
+  if ! git -C "$ROOT_DIR" cat-file -e "${branch_ref}:backend/package.json" >/dev/null 2>&1; then
+    return 1
+  fi
+
+  branch_sha="$(git -C "$ROOT_DIR" rev-parse "$branch_ref")"
+  extract_root="${TMPDIR:-/tmp}/mmk-backend-run-${branch_sha}"
+  mkdir -p "$extract_root"
+
+  if [[ ! -f "$extract_root/backend/package.json" ]]; then
+    git -C "$ROOT_DIR" archive "$branch_ref" backend | tar -x -C "$extract_root"
+  fi
+
+  if [[ -d "$ROOT_DIR/backend/node_modules" ]]; then
+    ln -sfn "$ROOT_DIR/backend/node_modules" "$extract_root/backend/node_modules"
+  fi
+
+  if [[ -f "$ROOT_DIR/backend/.env" && ! -f "$extract_root/backend/.env" ]]; then
+    cp "$ROOT_DIR/backend/.env" "$extract_root/backend/.env"
+  fi
+
+  echo "$extract_root/backend"
+  return 0
+}
+
 find_backend_dir() {
   if [[ -f "$ROOT_DIR/backend/package.json" ]]; then
     echo "$ROOT_DIR/backend"
@@ -19,6 +52,17 @@ find_backend_dir() {
 
   if [[ -n "${backend_worktree:-}" && -f "$backend_worktree/backend/package.json" ]]; then
     echo "$backend_worktree/backend"
+    return 0
+  fi
+
+  if extract_backend_branch >/dev/null 2>&1; then
+    extract_backend_branch
+    return 0
+  fi
+
+  local legacy_backend_dir="/Users/mohammadshihan/Downloads/mmk-accounts-website-demo/backend"
+  if [[ -f "$legacy_backend_dir/package.json" ]]; then
+    echo "$legacy_backend_dir"
     return 0
   fi
 
@@ -67,6 +111,14 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 if (( BACKEND_RUNNING == 0 )); then
+  if [[ -f "$BACKEND_DIR/prisma/schema.prisma" ]]; then
+    echo "Generating Prisma client ..."
+    npm --prefix "$BACKEND_DIR" run prisma:generate
+
+    echo "Applying backend migrations ..."
+    npm --prefix "$BACKEND_DIR" run prisma:deploy
+  fi
+
   echo "Starting backend on http://localhost:4000 ..."
   npm --prefix "$BACKEND_DIR" run dev &
   BACKEND_PID=$!
