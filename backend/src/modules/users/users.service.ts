@@ -154,8 +154,24 @@ export const updateUserPassword = async (id: string, password: string): Promise<
   });
 };
 
-export const deactivateUser = async (id: string): Promise<UserResponse> => {
-  await getUserById(id);
+export interface DeleteUserResult {
+  outcome: 'deactivated' | 'deleted';
+  user: UserResponse;
+}
+
+export const deleteUser = async (id: string): Promise<DeleteUserResult> => {
+  const existing = await getUserById(id);
+
+  if (!existing.isActive) {
+    await prisma.user.delete({
+      where: { id }
+    });
+
+    return {
+      outcome: 'deleted',
+      user: existing
+    };
+  }
 
   const user = await prisma.user.update({
     where: { id },
@@ -168,5 +184,8 @@ export const deactivateUser = async (id: string): Promise<UserResponse> => {
     data: { revokedAt: new Date() }
   });
 
-  return user;
+  return {
+    outcome: 'deactivated',
+    user
+  };
 };

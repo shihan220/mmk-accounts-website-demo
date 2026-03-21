@@ -3,7 +3,7 @@ import { asyncHandler } from '../../utils/async-handler';
 import { sendSuccess } from '../../utils/api-response';
 import {
   createUser,
-  deactivateUser,
+  deleteUser,
   getUserById,
   listUsers,
   updateUser,
@@ -68,17 +68,19 @@ export const updateUserPasswordHandler = asyncHandler(async (req: Request, res: 
   sendSuccess(res, 200, { updated: true }, 'Password updated and active sessions revoked');
 });
 
-export const deactivateUserHandler = asyncHandler(async (req: Request, res: Response) => {
-  const user = await deactivateUser(req.params.id);
+export const deleteUserHandler = asyncHandler(async (req: Request, res: Response) => {
+  const result = await deleteUser(req.params.id);
+  const isPermanentDelete = result.outcome === 'deleted';
 
   await createAuditLog({
     actorId: req.user?.id,
-    action: 'USER_DEACTIVATE',
+    action: isPermanentDelete ? 'USER_DELETE' : 'USER_DEACTIVATE',
     entityType: 'User',
-    entityId: user.id,
+    entityId: result.user.id,
+    metadata: { outcome: result.outcome },
     ipAddress: req.ip,
     userAgent: req.get('user-agent') ?? undefined
   });
 
-  sendSuccess(res, 200, user, 'User deactivated');
+  sendSuccess(res, 200, result, isPermanentDelete ? 'User deleted' : 'User deactivated');
 });
