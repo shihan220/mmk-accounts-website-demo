@@ -1242,6 +1242,7 @@
                 const roleOptions = ['ADMIN', 'STAFF']
                     .map((role) => `<option value="${role}" ${role === user.role ? 'selected' : ''}>${role}</option>`)
                     .join('');
+                const deleteActionLabel = user.isActive ? 'Deactivate' : 'Delete';
                 return `
                     <tr data-id="${escapeHtml(user.id)}">
                         <td>${escapeHtml(user.fullName || '-')}</td>
@@ -1259,7 +1260,7 @@
                         <td>
                             <div class="row-actions">
                                 <button class="btn btn-secondary" data-action="save-user">Save</button>
-                                <button class="btn btn-danger" data-action="delete-user" ${state.user?.id === user.id ? 'disabled' : ''}>Delete</button>
+                                <button class="btn btn-danger" data-action="delete-user" ${state.user?.id === user.id ? 'disabled' : ''}>${deleteActionLabel}</button>
                             </div>
                         </td>
                     </tr>
@@ -1322,23 +1323,31 @@
                 return;
             }
 
+            const isPermanentDelete = !existing.isActive;
             const confirmed = window.confirm(
-                `Delete account for ${existing.fullName || existing.email}? This will deactivate access immediately.`
+                isPermanentDelete
+                    ? `Permanently delete inactive account for ${existing.fullName || existing.email}? This cannot be undone.`
+                    : `Deactivate account for ${existing.fullName || existing.email}? Access will be removed immediately, but the account can still be deleted later once inactive.`
             );
             if (!confirmed) return;
 
-            setButtonLoading(button, true, 'Deleting...');
+            setButtonLoading(button, true, isPermanentDelete ? 'Deleting...' : 'Deactivating...');
             try {
-                await apiRequest(`/users/${encodeURIComponent(userId)}`, {
+                const response = await apiRequest(`/users/${encodeURIComponent(userId)}`, {
                     method: 'DELETE'
                 });
-                showFlash('User account deleted (deactivated).');
+                const outcome = response?.data?.outcome || (isPermanentDelete ? 'deleted' : 'deactivated');
+                showFlash(
+                    outcome === 'deleted'
+                        ? 'User account permanently deleted.'
+                        : 'User account deactivated.'
+                );
                 state.loaded.overview = false;
                 await Promise.all([loadUsers(true), loadAssignableUsers(true)]);
             } catch (error) {
                 showFlash(`User delete failed: ${error.message}`, 'err');
             } finally {
-                setButtonLoading(button, false, 'Delete');
+                setButtonLoading(button, false, isPermanentDelete ? 'Delete' : 'Deactivate');
             }
             return;
         }
