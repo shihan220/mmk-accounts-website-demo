@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { UserRole } from '@prisma/client';
 import {
   createUserHandler,
-  deactivateUserHandler,
+  deleteUserHandler,
   getUserHandler,
   listUsersHandler,
   updateUserHandler,
@@ -31,6 +31,6 @@ usersRouter.patch(
   validate({ params: userIdParamsSchema, body: updateUserPasswordBodySchema }),
   updateUserPasswordHandler
 );
-usersRouter.delete('/:id', validate({ params: userIdParamsSchema }), deactivateUserHandler);
+usersRouter.delete('/:id', validate({ params: userIdParamsSchema }), deleteUserHandler);
 
 export { usersRouter };
