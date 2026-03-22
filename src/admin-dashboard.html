@@ -4,18 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex,nofollow">
-    <title>MMK Staff Dashboard</title>
+    <title>MMK Admin Dashboard</title>
     <link rel="stylesheet" href="admin-dashboard.css">
 </head>
-<body data-page-kind="dashboard" data-dashboard-mode="staff">
+<body data-page-kind="dashboard" data-dashboard-mode="admin">
     <div class="admin-shell">
         <header class="admin-header">
             <div class="admin-brand-wrap">
                 <p class="admin-kicker">MMK Accountants</p>
-                <h1>Staff Dashboard</h1>
+                <h1>Admin Dashboard</h1>
             </div>
             <div class="admin-header-actions">
-                <span class="pill">Staff operations workspace</span>
+                <span class="pill">Admin operations workspace</span>
                 <button id="refreshAllBtn" class="btn btn-secondary" type="button" disabled>Refresh Data</button>
                 <button id="logoutBtn" class="btn btn-danger" type="button" disabled>Log Out</button>
             </div>
@@ -29,13 +29,15 @@
                     <strong id="currentUserName">Session loading</strong>
                     <span id="currentUserEmail" class="muted"></span>
                 </div>
-                <span id="currentUserRole" class="role-chip">STAFF</span>
+                <span id="currentUserRole" class="role-chip">ADMIN</span>
             </div>
 
-            <nav class="view-tabs" aria-label="Staff views">
+            <nav class="view-tabs" aria-label="Admin views">
                 <button class="view-tab active" data-view="overview" type="button">Overview</button>
                 <button class="view-tab" data-view="inquiries" type="button">Inquiries</button>
                 <button class="view-tab" data-view="newsletter" type="button">Newsletter</button>
+                <button class="view-tab" data-view="users" type="button">Users</button>
+                <button class="view-tab" data-view="audit" type="button">Audit Logs</button>
             </nav>
 
             <section id="view-overview" class="view-panel active">
@@ -226,6 +228,127 @@
                         <button id="subsPrev" class="btn btn-secondary" type="button">Prev</button>
                         <span id="subsPagination">Page 1 / 1</span>
                         <button id="subsNext" class="btn btn-secondary" type="button">Next</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-users" class="view-panel">
+                <div class="panel-head">
+                    <h2>Users</h2>
+                    <form id="usersFilters" class="inline-filters">
+                        <input id="usersSearch" type="search" placeholder="Search name, email, or phone">
+                        <select id="usersRole">
+                            <option value="">All Roles</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="STAFF">STAFF</option>
+                        </select>
+                        <select id="usersIsActive">
+                            <option value="">All Statuses</option>
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                        <button class="btn btn-secondary" type="submit">Apply</button>
+                    </form>
+                </div>
+
+                <div class="split-grid split-large">
+                    <div class="card">
+                        <h3>Create User</h3>
+                        <form id="createUserForm" class="stack-form">
+                            <label>
+                                Full Name
+                                <input id="createUserName" type="text" required>
+                            </label>
+                            <label>
+                                Email
+                                <input id="createUserEmail" type="email" required>
+                            </label>
+                            <label>
+                                Phone
+                                <input id="createUserPhone" type="tel" placeholder="+447700900456" required>
+                            </label>
+                            <label>
+                                Password
+                                <div class="password-field">
+                                    <button class="password-toggle" type="button" data-password-toggle="createUserPassword" aria-label="Show password" aria-pressed="false">
+                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M1.5 12s4.5-7.5 10.5-7.5S22.5 12 22.5 12s-4.5 7.5-10.5 7.5S1.5 12 1.5 12"></path>
+                                            <circle cx="12" cy="12" r="3.25"></circle>
+                                        </svg>
+                                    </button>
+                                    <input id="createUserPassword" type="password" minlength="8" required>
+                                </div>
+                            </label>
+                            <label>
+                                Role
+                                <select id="createUserRole">
+                                    <option value="STAFF">STAFF</option>
+                                    <option value="ADMIN">ADMIN</option>
+                                </select>
+                            </label>
+                            <label class="check-row">
+                                <input id="createUserActive" type="checkbox" checked>
+                                Active user
+                            </label>
+                            <button class="btn btn-primary" type="submit">Create</button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="table-wrap">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Phone</th>
+                                        <th>Role</th>
+                                        <th>Active</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersBody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pager">
+                            <button id="usersPrev" class="btn btn-secondary" type="button">Prev</button>
+                            <span id="usersPagination">Page 1 / 1</span>
+                            <button id="usersNext" class="btn btn-secondary" type="button">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-audit" class="view-panel">
+                <div class="panel-head">
+                    <h2>Audit Logs</h2>
+                    <form id="auditFilters" class="inline-filters">
+                        <input id="auditActorId" type="text" placeholder="Actor UUID (optional)">
+                        <input id="auditAction" type="text" placeholder="Action contains">
+                        <input id="auditEntityType" type="text" placeholder="Entity type contains">
+                        <button class="btn btn-secondary" type="submit">Apply</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Actor</th>
+                                    <th>Action</th>
+                                    <th>Entity</th>
+                                    <th>Entity ID</th>
+                                </tr>
+                            </thead>
+                            <tbody id="auditBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="pager">
+                        <button id="auditPrev" class="btn btn-secondary" type="button">Prev</button>
+                        <span id="auditPagination">Page 1 / 1</span>
+                        <button id="auditNext" class="btn btn-secondary" type="button">Next</button>
                     </div>
                 </div>
             </section>
