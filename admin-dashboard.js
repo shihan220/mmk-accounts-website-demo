@@ -1,6 +1,18 @@
 (() => {
     const PASSWORD_AUTO_HIDE_MS = 7000;
     const DASHBOARD_MODE = document.body?.dataset?.dashboardMode === 'staff' ? 'staff' : 'admin';
+    const DASHBOARD_BRANDING = {
+        admin: {
+            title: 'MMK Admin Dashboard',
+            heading: 'Admin Dashboard',
+            viewsLabel: 'Admin views'
+        },
+        staff: {
+            title: 'MMK Staff Dashboard',
+            heading: 'Staff Dashboard',
+            viewsLabel: 'Staff views'
+        }
+    };
     const API_BASE = (() => {
         if (window.MMK_API_BASE) return window.MMK_API_BASE;
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -81,6 +93,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         cacheElements();
+        updateDashboardBranding();
         bindEvents();
         restoreSession();
     });
@@ -130,6 +143,8 @@
         els.registerVerifyError = getOptionalEl('registerVerifyError');
         els.logoutBtn = getEl('logoutBtn');
         els.refreshAllBtn = getEl('refreshAllBtn');
+        els.dashboardHeading = document.querySelector('.admin-brand-wrap h1');
+        els.viewsNav = document.querySelector('.view-tabs');
 
         els.currentUserName = getEl('currentUserName');
         els.currentUserEmail = getEl('currentUserEmail');
@@ -414,6 +429,24 @@
         els.appSection.classList.toggle('is-hidden', !isAuthenticated);
         els.logoutBtn.disabled = !isAuthenticated;
         els.refreshAllBtn.disabled = !isAuthenticated;
+    }
+
+    function getEffectiveDashboardMode() {
+        if (state.user?.role === 'STAFF') {
+            return 'staff';
+        }
+        return DASHBOARD_MODE;
+    }
+
+    function updateDashboardBranding() {
+        const branding = DASHBOARD_BRANDING[getEffectiveDashboardMode()] || DASHBOARD_BRANDING.admin;
+        document.title = branding.title;
+        if (els.dashboardHeading) {
+            els.dashboardHeading.textContent = branding.heading;
+        }
+        if (els.viewsNav) {
+            els.viewsNav.setAttribute('aria-label', branding.viewsLabel);
+        }
     }
 
     async function onLoginSubmit(event) {
@@ -805,6 +838,7 @@
 
     function resetUiForLoggedOut() {
         setAuthVisible(false);
+        updateDashboardBranding();
         els.currentUserName.textContent = 'Not signed in';
         els.currentUserEmail.textContent = '';
         els.currentUserRole.textContent = 'GUEST';
@@ -831,6 +865,7 @@
 
     function updateSessionBar() {
         const user = state.user;
+        updateDashboardBranding();
         els.currentUserName.textContent = user?.fullName || 'Unknown User';
         els.currentUserEmail.textContent = user?.email ? `(${user.email})` : '';
         els.currentUserRole.textContent = user?.role || 'UNKNOWN';
@@ -1342,6 +1377,7 @@
     }
 
     async function onUsersTableClick(event) {
+        if (!canAccessAdminViews()) return;
         const button = event.target.closest('button[data-action]');
         if (!button) return;
 
