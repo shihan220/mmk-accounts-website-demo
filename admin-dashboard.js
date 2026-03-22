@@ -1,5 +1,6 @@
 (() => {
     const PASSWORD_AUTO_HIDE_MS = 7000;
+    const DASHBOARD_MODE = document.body?.dataset?.dashboardMode === 'staff' ? 'staff' : 'admin';
     const API_BASE = (() => {
         if (window.MMK_API_BASE) return window.MMK_API_BASE;
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
@@ -112,21 +113,21 @@
         els.forgotResetBtn = getEl('forgotResetBtn');
         els.forgotCancelBtn = getEl('forgotCancelBtn');
         els.forgotError = getEl('forgotError');
-        els.registerForm = getEl('registerForm');
-        els.registerName = getEl('registerName');
-        els.registerEmail = getEl('registerEmail');
-        els.registerPhone = getEl('registerPhone');
-        els.registerPassword = getEl('registerPassword');
-        els.registerRole = getEl('registerRole');
-        els.registerBtn = getEl('registerBtn');
-        els.registerError = getEl('registerError');
-        els.registerVerifySection = getEl('registerVerifySection');
-        els.registerVerifyForm = getEl('registerVerifyForm');
-        els.registerVerifyHint = getEl('registerVerifyHint');
-        els.registerVerifyCode = getEl('registerVerifyCode');
-        els.registerVerifyBtn = getEl('registerVerifyBtn');
-        els.registerVerifyCancelBtn = getEl('registerVerifyCancelBtn');
-        els.registerVerifyError = getEl('registerVerifyError');
+        els.registerForm = getOptionalEl('registerForm');
+        els.registerName = getOptionalEl('registerName');
+        els.registerEmail = getOptionalEl('registerEmail');
+        els.registerPhone = getOptionalEl('registerPhone');
+        els.registerPassword = getOptionalEl('registerPassword');
+        els.registerRole = getOptionalEl('registerRole');
+        els.registerBtn = getOptionalEl('registerBtn');
+        els.registerError = getOptionalEl('registerError');
+        els.registerVerifySection = getOptionalEl('registerVerifySection');
+        els.registerVerifyForm = getOptionalEl('registerVerifyForm');
+        els.registerVerifyHint = getOptionalEl('registerVerifyHint');
+        els.registerVerifyCode = getOptionalEl('registerVerifyCode');
+        els.registerVerifyBtn = getOptionalEl('registerVerifyBtn');
+        els.registerVerifyCancelBtn = getOptionalEl('registerVerifyCancelBtn');
+        els.registerVerifyError = getOptionalEl('registerVerifyError');
         els.logoutBtn = getEl('logoutBtn');
         els.refreshAllBtn = getEl('refreshAllBtn');
 
@@ -215,9 +216,11 @@
         els.forgotRequestForm.addEventListener('submit', onForgotRequestSubmit);
         els.forgotResetForm.addEventListener('submit', onForgotResetSubmit);
         els.forgotCancelBtn.addEventListener('click', resetForgotPasswordFlow);
-        els.registerForm.addEventListener('submit', onRegisterSubmit);
-        els.registerVerifyForm.addEventListener('submit', onRegisterVerifySubmit);
-        els.registerVerifyCancelBtn.addEventListener('click', resetRegisterVerification);
+        if (hasRegisterFlow()) {
+            els.registerForm.addEventListener('submit', onRegisterSubmit);
+            els.registerVerifyForm.addEventListener('submit', onRegisterVerifySubmit);
+            els.registerVerifyCancelBtn.addEventListener('click', resetRegisterVerification);
+        }
         els.logoutBtn.addEventListener('click', onLogout);
         els.refreshAllBtn.addEventListener('click', async () => {
             await refreshCurrentView(true);
@@ -369,6 +372,30 @@
         return el;
     }
 
+    function getOptionalEl(id) {
+        return document.getElementById(id);
+    }
+
+    function hasRegisterFlow() {
+        return Boolean(
+            els.registerForm &&
+            els.registerName &&
+            els.registerEmail &&
+            els.registerPhone &&
+            els.registerPassword &&
+            els.registerRole &&
+            els.registerBtn &&
+            els.registerError &&
+            els.registerVerifySection &&
+            els.registerVerifyForm &&
+            els.registerVerifyHint &&
+            els.registerVerifyCode &&
+            els.registerVerifyBtn &&
+            els.registerVerifyCancelBtn &&
+            els.registerVerifyError
+        );
+    }
+
     function showFlash(message, kind = 'ok', persistMs = 4200) {
         els.flash.textContent = message;
         els.flash.classList.remove('ok', 'err');
@@ -468,6 +495,7 @@
     }
 
     async function onRegisterSubmit(event) {
+        if (!hasRegisterFlow()) return;
         event.preventDefault();
         els.registerError.textContent = '';
         els.registerVerifyError.textContent = '';
@@ -513,6 +541,7 @@
     }
 
     async function onRegisterVerifySubmit(event) {
+        if (!hasRegisterFlow()) return;
         event.preventDefault();
         els.registerVerifyError.textContent = '';
 
@@ -676,6 +705,7 @@
 
     function resetRegisterVerification() {
         state.authChallenges.register = null;
+        if (!hasRegisterFlow()) return;
         els.registerVerifySection.classList.add('is-hidden');
         els.registerVerifyHint.textContent = '';
         els.registerVerifyError.textContent = '';
@@ -779,7 +809,7 @@
         els.currentUserEmail.textContent = '';
         els.currentUserRole.textContent = 'GUEST';
         els.authError.textContent = '';
-        els.registerError.textContent = '';
+        if (els.registerError) els.registerError.textContent = '';
         resetLoginVerification();
         resetRegisterVerification();
         resetForgotPasswordFlow();
@@ -807,7 +837,7 @@
     }
 
     function applyRoleAccess() {
-        const admin = isAdmin();
+        const admin = canAccessAdminViews();
         const usersTab = els.tabs.find((tab) => tab.dataset.view === 'users');
         const auditTab = els.tabs.find((tab) => tab.dataset.view === 'audit');
         const usersPanel = getPanel('users');
@@ -825,6 +855,10 @@
 
     function isAdmin() {
         return state.user?.role === 'ADMIN';
+    }
+
+    function canAccessAdminViews() {
+        return DASHBOARD_MODE === 'admin' && isAdmin();
     }
 
     function isAdminOnlyView(view) {
@@ -858,10 +892,10 @@
                 await loadSubscribers(force);
                 break;
             case 'users':
-                if (isAdmin()) await loadUsers(force);
+                if (canAccessAdminViews()) await loadUsers(force);
                 break;
             case 'audit':
-                if (isAdmin()) await loadAuditLogs(force);
+                if (canAccessAdminViews()) await loadAuditLogs(force);
                 break;
             default:
                 break;
@@ -1202,7 +1236,7 @@
     }
 
     async function loadUsers(force = false) {
-        if (!isAdmin()) return;
+        if (!canAccessAdminViews()) return;
         if (!force && state.loaded.users) return;
 
         renderTableLoading(els.usersBody, 6, 'Loading users...');
@@ -1271,7 +1305,7 @@
 
     async function onCreateUserSubmit(event) {
         event.preventDefault();
-        if (!isAdmin()) return;
+        if (!canAccessAdminViews()) return;
 
         const payload = {
             fullName: els.createUserName.value.trim(),
@@ -1382,7 +1416,7 @@
     }
 
     async function loadAuditLogs(force = false) {
-        if (!isAdmin()) return;
+        if (!canAccessAdminViews()) return;
         if (!force && state.loaded.audit) return;
 
         renderTableLoading(els.auditBody, 5, 'Loading audit logs...');
@@ -1434,7 +1468,7 @@
     }
 
     async function loadAssignableUsers(force = false) {
-        if (!isAdmin()) {
+        if (!canAccessAdminViews()) {
             state.assignableUsers = [];
             renderAssigneeSelect(state.selectedInquiry?.assignedTo?.id || '');
             return;

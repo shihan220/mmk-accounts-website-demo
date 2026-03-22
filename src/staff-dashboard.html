@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex,nofollow">
-    <title>MMK Admin Dashboard</title>
+    <title>MMK Staff Dashboard</title>
     <link rel="stylesheet" href="admin-dashboard.css">
 </head>
-<body data-dashboard-mode="admin">
+<body data-dashboard-mode="staff">
     <div class="admin-shell">
         <header class="admin-header">
             <div class="admin-brand-wrap">
                 <p class="admin-kicker">MMK Accountants</p>
-                <h1>Admin Dashboard</h1>
+                <h1>Staff Dashboard</h1>
             </div>
             <div class="admin-header-actions">
                 <button id="refreshAllBtn" class="btn btn-secondary" type="button" disabled>Refresh Data</button>
@@ -25,7 +25,7 @@
         <section id="authSection" class="auth-section">
             <div class="auth-card">
                 <h2>Sign In</h2>
-                <p>Use email or phone number to sign in with your admin account. New team accounts are created by an administrator inside the dashboard.</p>
+                <p>Use email or phone number to sign in with your staff account. Team access is provisioned by an administrator.</p>
                 <form id="loginForm" class="stack-form">
                     <label>
                         Email or Phone
@@ -112,7 +112,7 @@
                 <span id="currentUserRole" class="role-chip">GUEST</span>
             </div>
 
-            <nav class="view-tabs" aria-label="Admin views">
+            <nav class="view-tabs" aria-label="Staff views">
                 <button class="view-tab active" data-view="overview" type="button">Overview</button>
                 <button class="view-tab" data-view="inquiries" type="button">Inquiries</button>
                 <button class="view-tab" data-view="newsletter" type="button">Newsletter</button>
